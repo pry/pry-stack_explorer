@@ -7,19 +7,19 @@ require "binding_of_caller"
 
 module PryStackExplorer
 
-  def self.bindings_equal?(b1, b2)
-    (b1.eval('self') == b2.eval('self')) &&
-      (b1.eval('local_variables').map { |v| b1.eval("#{v}") } ==
-       b2.eval('local_variables').map { |v| b2.eval("#{v}") }) &&
-      (b1.eval('__method__') == b2.eval('__method__'))
-  end
-
   def self.frame_manager
     Thread.current[:__pry_frame_manager__]
   end
 
   def self.frame_manager=(obj)
     Thread.current[:__pry_frame_manager__] = obj
+  end
+
+  def self.bindings_equal?(b1, b2)
+    (b1.eval('self') == b2.eval('self')) &&
+      (b1.eval('__method__') == b2.eval('__method__')) &&
+      (b1.eval('local_variables').map { |v| b1.eval("#{v}") } ==
+       b2.eval('local_variables').map { |v| b2.eval("#{v}") })
   end
 
   class FrameManager
@@ -50,15 +50,23 @@ module PryStackExplorer
     command "up", "Go up to the caller's context" do |inc_str|
       inc = inc_str.nil? ? 1 : inc_str.to_i
 
-      binding_index = PryStackExplorer.frame_manager.binding_index
-      PryStackExplorer.frame_manager.change_binding_to binding_index + inc, _pry_
+      if !PryStackExplorer.frame_manager
+        output.puts "Nowhere to go!"
+        else
+        binding_index = PryStackExplorer.frame_manager.binding_index
+        PryStackExplorer.frame_manager.change_binding_to binding_index + inc, _pry_
+      end
     end
 
     command "down", "Go down to the callee's context." do |inc_str|
       inc = inc_str.nil? ? 1 : inc_str.to_i
 
-      binding_index = PryStackExplorer.frame_manager.binding_index
-      PryStackExplorer.frame_manager.change_binding_to binding_index - inc, _pry_
+      if !PryStackExplorer.frame_manager
+        output.puts "Nowhere to go!"
+      else
+        binding_index = PryStackExplorer.frame_manager.binding_index
+        PryStackExplorer.frame_manager.change_binding_to binding_index - inc, _pry_
+      end
     end
 
     command "frame", "Switch to a particular frame." do |frame_num|
@@ -97,7 +105,7 @@ class << Pry
 
     PryStackExplorer.frame_manager = PryStackExplorer::FrameManager.new(bindings)
 
-    PSE_old_start(bindings.first)
+    PSE_old_start(bindings.first, *args, &block)
   end
 end
 
