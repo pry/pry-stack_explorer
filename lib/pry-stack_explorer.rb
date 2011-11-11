@@ -23,7 +23,6 @@ module PryStackExplorer
   end
 
   class FrameManager
-    attr_reader   :pry_instance
     attr_reader   :binding_index
     attr_accessor :bindings
 
@@ -52,7 +51,7 @@ module PryStackExplorer
 
       if !PryStackExplorer.frame_manager
         output.puts "Nowhere to go!"
-        else
+      else
         binding_index = PryStackExplorer.frame_manager.binding_index
         PryStackExplorer.frame_manager.change_binding_to binding_index + inc, _pry_
       end
