@@ -31,7 +31,17 @@ module PryStackExplorer
       @binding_index = 0
     end
 
+    def convert_from_one_index(n)
+      if n >= 0
+        n - 1
+      else
+        n
+      end
+    end
+
     def change_binding_to(index, pry_instance)
+      index = convert_from_one_index(index)
+
       if index > bindings.size - 1
         pry_instance.output.puts "Warning: At top of stack, cannot go further!"
       elsif index < 0
@@ -53,7 +63,7 @@ module PryStackExplorer
         output.puts "Nowhere to go!"
       else
         binding_index = PryStackExplorer.frame_manager.binding_index
-        PryStackExplorer.frame_manager.change_binding_to binding_index + inc, _pry_
+        PryStackExplorer.frame_manager.change_binding_to binding_index + inc + 1, _pry_
       end
     end
 
@@ -64,7 +74,7 @@ module PryStackExplorer
         output.puts "Nowhere to go!"
       else
         binding_index = PryStackExplorer.frame_manager.binding_index
-        PryStackExplorer.frame_manager.change_binding_to binding_index - inc, _pry_
+        PryStackExplorer.frame_manager.change_binding_to binding_index - inc + 1, _pry_
       end
     end
 
@@ -79,33 +89,24 @@ module PryStackExplorer
   end
 end
 
-class << Pry
-  alias_method :PSE_old_start, :start
-  def start(target, *args, &block)
-    target = Pry.binding_for(target)
-
-    # we need to know how many frames to skip depending on whether we
-    # were invoked with Pry.start or Object#pry
-    if binding.of_caller(1).eval('__method__') == :pry
-      drop_number = 2
-    else
-      drop_number = 1
-    end
-
-    bindings = binding.callers.drop(drop_number)
-
-    # Use the binding returned by #of_caller if possible (as we get
-    # access to frame_type).
-    # Otherwise stick to the given binding (target).
-    if !PryStackExplorer.bindings_equal?(target, bindings.first)
-      bindings.shift
-      bindings.unshift(target)
-    end
-
-    PryStackExplorer.frame_manager = PryStackExplorer::FrameManager.new(bindings)
-
-    PSE_old_start(bindings.first, *args, &block)
+Pry.config.hooks.add_hook(:when_started) do |target|
+  if binding.of_caller(4).eval('__method__') == :pry
+    drop_number = 5
+  else
+    drop_number = 4
   end
+
+  bindings = binding.callers.drop(drop_number)
+
+  # Use the binding returned by #of_caller if possible (as we get
+  # access to frame_type).
+  # Otherwise stick to the given binding (target).
+  if !PryStackExplorer.bindings_equal?(target, bindings.first)
+    bindings.shift
+    bindings.unshift(target)
+  end
+
+  PryStackExplorer.frame_manager = PryStackExplorer::FrameManager.new(bindings)
 end
 
 Pry.config.commands.import PryStackExplorer::StackCommands
@@ -120,7 +121,7 @@ Pry.config.commands.command "whereami", "Show the code context for the session. 
     binding_index = PryStackExplorer.frame_manager.binding_index
 
     output.puts "\n"
-    output.puts "#{Pry::Helpers::Text.bold('Frame number:')} #{binding_index}/#{bindings.size - 1}"
+    output.puts "#{Pry::Helpers::Text.bold('Frame number:')} #{binding_index + 1}/#{bindings.size}"
     output.puts "#{Pry::Helpers::Text.bold('Frame type:')} #{bindings[binding_index].frame_type}" rescue nil
   end
 

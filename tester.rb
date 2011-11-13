@@ -10,5 +10,7 @@ end
 
 def c
   u = 50
-  binding.pry
+  5.pry
 end
+
+a
