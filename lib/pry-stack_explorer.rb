@@ -38,6 +38,7 @@ module PryStackExplorer
         n
       end
     end
+    private :convert_from_one_index
 
     def change_binding_to(index, pry_instance)
       index = convert_from_one_index(index)
@@ -89,7 +90,7 @@ module PryStackExplorer
   end
 end
 
-Pry.config.hooks.add_hook(:when_started) do |target|
+Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |target|
   if binding.of_caller(4).eval('__method__') == :pry
     drop_number = 5
   else
@@ -111,11 +112,9 @@ end
 
 Pry.config.commands.import PryStackExplorer::StackCommands
 
-Pry.config.commands.alias_command "__old_whereami__", "whereami", ""
-
 # monkey-patch the whereami command to show some frame information,
 # useful for navigating stack.
-Pry.config.commands.command "whereami", "Show the code context for the session. (whereami <n> shows <n> extra lines of code around the invocation line. Default: 5)" do |num|
+Pry.config.commands.before_command("whereami") do |num|
   if PryStackExplorer.frame_manager
     bindings      = PryStackExplorer.frame_manager.bindings
     binding_index = PryStackExplorer.frame_manager.binding_index
@@ -124,6 +123,4 @@ Pry.config.commands.command "whereami", "Show the code context for the session. 
     output.puts "#{Pry::Helpers::Text.bold('Frame number:')} #{binding_index + 1}/#{bindings.size}"
     output.puts "#{Pry::Helpers::Text.bold('Frame type:')} #{bindings[binding_index].frame_type}" rescue nil
   end
-
-  run "__old_whereami__", num
 end
