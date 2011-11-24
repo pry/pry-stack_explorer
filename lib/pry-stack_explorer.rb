@@ -91,10 +91,10 @@ module PryStackExplorer
 end
 
 Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |target|
-  if binding.of_caller(4).eval('__method__') == :pry
-    drop_number = 5
+  if binding.of_caller(5).eval('__method__') == :pry
+    drop_number = 6
   else
-    drop_number = 4
+    drop_number = 5
   end
 
   bindings = binding.callers.drop(drop_number)
