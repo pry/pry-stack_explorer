@@ -40,6 +40,31 @@ module PryStackExplorer
     end
     private :convert_from_one_index
 
+    def signature(b)
+      if b.eval('__method__')
+        "#{closure_type} in #{b.eval('self').class}##{b.eval('__method__')}"
+      else
+        if b.eval('self').is_a?(Module)
+          "#{closure_type} in <class:#{b.eval('self')}>"
+        end
+      end
+    end
+
+    def binding_info_for(b)
+      b_self = b.eval('self')
+      b_method = b.eval('__method__')
+
+      if b_method
+        b_method
+      elsif b_self.instance_of?(Module)
+        "<module:#{b_self}>"
+      elsif b_self.instance_of?(Class)
+        "<class:#{b_self}>"
+      else
+        "<main>"
+      end
+    end
+
     def change_binding_to(index, pry_instance)
       index = convert_from_one_index(index)
 
@@ -79,6 +104,23 @@ module PryStackExplorer
       end
     end
 
+    command "show-stack", "Show all frames" do
+      PryStackExplorer.frame_manager.bindings.each_with_index do |b, i|
+        meth = b.eval('__method__')
+        b_self = b.eval('self')
+
+        desc = b.frame_description ? "#{text.bold('Description:')} #{b.frame_description}".ljust(40) : PryStackExplorer.frame_manager.binding_info_for(b).ljust(40)
+        sig = meth ? "#{text.bold('Signature:')} #{Pry::Method.new(b_self.method(meth)).signature}".ljust(35) : "".ljust(27)
+        type = b.frame_type ? "#{text.bold('Type:')} #{b.frame_type}" : ""
+
+        if i == PryStackExplorer.frame_manager.binding_index
+          output.puts "=> ##{i + 1} #{desc} #{sig} #{type}"
+        else
+          output.puts "   ##{i + 1} #{desc} #{sig} #{type}"
+        end
+      end
+    end
+
     command "frame", "Switch to a particular frame." do |frame_num|
       PryStackExplorer.frame_manager.change_binding_to frame_num.to_i, _pry_
     end
@@ -90,11 +132,13 @@ module PryStackExplorer
   end
 end
 
-Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |target|
-  if binding.of_caller(5).eval('__method__') == :pry
-    drop_number = 6
+Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |binding_stack, _pry_|
+  target = binding_stack.last
+
+  if binding.of_caller(6).eval('__method__') == :pry
+    drop_number = 7
   else
-    drop_number = 5
+    drop_number = 6
   end
 
   bindings = binding.callers.drop(drop_number)
@@ -102,10 +146,13 @@ Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |target|
   # Use the binding returned by #of_caller if possible (as we get
   # access to frame_type).
   # Otherwise stick to the given binding (target).
+  puts "are they equal? #{PryStackExplorer.bindings_equal?(target, bindings.first)}"
   if !PryStackExplorer.bindings_equal?(target, bindings.first)
     bindings.shift
     bindings.unshift(target)
   end
+
+  binding_stack.replace([bindings.first])
 
   PryStackExplorer.frame_manager = PryStackExplorer::FrameManager.new(bindings)
 end
@@ -121,6 +168,6 @@ Pry.config.commands.before_command("whereami") do |num|
 
     output.puts "\n"
     output.puts "#{Pry::Helpers::Text.bold('Frame number:')} #{binding_index + 1}/#{bindings.size}"
-    output.puts "#{Pry::Helpers::Text.bold('Frame type:')} #{bindings[binding_index].frame_type}" rescue nil
+    output.puts "#{Pry::Helpers::Text.bold('Frame type:')} #{bindings[binding_index].frame_type}" if bindings[binding_index].frame_type
   end
 end

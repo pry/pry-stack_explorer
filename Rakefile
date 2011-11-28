@@ -22,7 +22,7 @@ def apply_spec_defaults(s)
   s.email = 'jrmair@gmail.com'
   s.description = s.summary
   s.require_path = 'lib'
-  s.add_dependency("binding_of_caller","~>0.5.0")
+  s.add_dependency("binding_of_caller","~>0.6.0")
   s.add_development_dependency("bacon","~>1.1.0")
   s.homepage = "https://github.com/banister"
   s.files = Dir["lib/**/*.rb", "test/*.rb", "CHANGELOG", "README.md", "Rakefile"]
@@ -31,6 +31,11 @@ end
 desc "run pry with plugin enabled"
 task :pry do
   exec("pry -I#{direc}/lib/ -r #{direc}/lib/#{PROJECT_NAME}")
+end
+
+desc "Run example"
+task :example do
+  sh "ruby -I#{direc}/lib/ #{direc}/examples/example.rb "
 end
 
 desc "run tests"
