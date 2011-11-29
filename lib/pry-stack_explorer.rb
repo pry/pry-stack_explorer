@@ -55,7 +55,7 @@ module PryStackExplorer
       b_method = b.eval('__method__')
 
       if b_method
-        b_method
+        b_method.to_s
       elsif b_self.instance_of?(Module)
         "<module:#{b_self}>"
       elsif b_self.instance_of?(Class)
@@ -105,18 +105,24 @@ module PryStackExplorer
     end
 
     command "show-stack", "Show all frames" do
+      output.puts "\n#{text.bold('Showing all accessible frames in stack:')}\n--\n"
+
       PryStackExplorer.frame_manager.bindings.each_with_index do |b, i|
         meth = b.eval('__method__')
         b_self = b.eval('self')
 
-        desc = b.frame_description ? "#{text.bold('Description:')} #{b.frame_description}".ljust(40) : PryStackExplorer.frame_manager.binding_info_for(b).ljust(40)
-        sig = meth ? "#{text.bold('Signature:')} #{Pry::Method.new(b_self.method(meth)).signature}".ljust(35) : "".ljust(27)
-        type = b.frame_type ? "#{text.bold('Type:')} #{b.frame_type}" : ""
+        desc = b.frame_description ? "#{text.bold('Description:')} #{b.frame_description}".ljust(40) :
+          "#{text.bold('Description:')} #{PryStackExplorer.frame_manager.binding_info_for(b)}".ljust(40)
+        sig = meth ? "#{text.bold('Signature:')} #{Pry::Method.new(b_self.method(meth)).signature}".ljust(40) : "".ljust(32)
+        type = b.frame_type ? "#{text.bold('Type:')} #{b.frame_type}".ljust(20) : "".ljust(20)
+        slf = "#{text.bold('Self:')} #{b_self}".ljust(20)
+        path = "#{text.bold("@ File:")} #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
+
 
         if i == PryStackExplorer.frame_manager.binding_index
-          output.puts "=> ##{i + 1} #{desc} #{sig} #{type}"
+          output.puts "=> ##{i + 1} #{desc} #{sig} #{slf} #{type} #{path}"
         else
-          output.puts "   ##{i + 1} #{desc} #{sig} #{type}"
+          output.puts "   ##{i + 1} #{desc} #{sig} #{slf} #{type} #{path}"
         end
       end
     end
@@ -146,7 +152,6 @@ Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |binding_stac
   # Use the binding returned by #of_caller if possible (as we get
   # access to frame_type).
   # Otherwise stick to the given binding (target).
-  puts "are they equal? #{PryStackExplorer.bindings_equal?(target, bindings.first)}"
   if !PryStackExplorer.bindings_equal?(target, bindings.first)
     bindings.shift
     bindings.unshift(target)
