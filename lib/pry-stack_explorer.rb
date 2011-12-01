@@ -7,12 +7,17 @@ require "binding_of_caller"
 
 module PryStackExplorer
 
-  def self.frame_manager
-    Thread.current[:__pry_frame_manager__]
+  def self.add_frame_manager(bindings, _pry_)
+    Thread.current[:__pry_frame_managers__] ||= {}
+    Thread.current[:__pry_frame_managers__][_pry_] = FrameManager.new(bindings, _pry_)
   end
 
-  def self.frame_manager=(obj)
-    Thread.current[:__pry_frame_manager__] = obj
+  def self.delete_frame_manager(_pry_)
+    Thread.current[:__pry_frame_managers__].delete(_pry_)
+  end
+
+  def self.frame_manager(_pry_)
+    Thread.current[:__pry_frame_managers__][_pry_]
   end
 
   def self.bindings_equal?(b1, b2)
@@ -26,9 +31,10 @@ module PryStackExplorer
     attr_reader   :binding_index
     attr_accessor :bindings
 
-    def initialize(bindings)
+    def initialize(bindings, _pry_)
       @bindings      = bindings
       @binding_index = 0
+      @pry           = _pry_
     end
 
     def convert_from_one_index(n)
@@ -65,18 +71,18 @@ module PryStackExplorer
       end
     end
 
-    def change_binding_to(index, pry_instance)
+    def change_binding_to(index)
       index = convert_from_one_index(index)
 
       if index > bindings.size - 1
-        pry_instance.output.puts "Warning: At top of stack, cannot go further!"
+        @pry.output.puts "Warning: At top of stack, cannot go further!"
       elsif index < 0
-        pry_instance.output.puts "Warning: At bottom of stack, cannot go further!"
+        @pry.output.puts "Warning: At bottom of stack, cannot go further!"
       else
         @binding_index = index
-        pry_instance.binding_stack[-1] = bindings[binding_index]
+        @pry.binding_stack[-1] = bindings[binding_index]
 
-        pry_instance.run_command "whereami"
+        @pry.run_command "whereami"
       end
     end
   end
@@ -85,41 +91,41 @@ module PryStackExplorer
     command "up", "Go up to the caller's context" do |inc_str|
       inc = inc_str.nil? ? 1 : inc_str.to_i
 
-      if !PryStackExplorer.frame_manager
+      if !PryStackExplorer.frame_manager(_pry_)
         output.puts "Nowhere to go!"
       else
-        binding_index = PryStackExplorer.frame_manager.binding_index
-        PryStackExplorer.frame_manager.change_binding_to binding_index + inc + 1, _pry_
+        binding_index = PryStackExplorer.frame_manager(_pry_).binding_index
+        PryStackExplorer.frame_manager(_pry_).change_binding_to binding_index + inc + 1
       end
     end
 
     command "down", "Go down to the callee's context." do |inc_str|
       inc = inc_str.nil? ? 1 : inc_str.to_i
 
-      if !PryStackExplorer.frame_manager
+      if !PryStackExplorer.frame_manager(_pry_)
         output.puts "Nowhere to go!"
       else
-        binding_index = PryStackExplorer.frame_manager.binding_index
-        PryStackExplorer.frame_manager.change_binding_to binding_index - inc + 1, _pry_
+        binding_index = PryStackExplorer.frame_manager(_pry_).binding_index
+        PryStackExplorer.frame_manager(_pry_).change_binding_to binding_index - inc + 1
       end
     end
 
     command "show-stack", "Show all frames" do
       output.puts "\n#{text.bold('Showing all accessible frames in stack:')}\n--\n"
 
-      PryStackExplorer.frame_manager.bindings.each_with_index do |b, i|
+      PryStackExplorer.frame_manager(_pry_).bindings.each_with_index do |b, i|
         meth = b.eval('__method__')
         b_self = b.eval('self')
 
         desc = b.frame_description ? "#{text.bold('Description:')} #{b.frame_description}".ljust(40) :
-          "#{text.bold('Description:')} #{PryStackExplorer.frame_manager.binding_info_for(b)}".ljust(40)
+          "#{text.bold('Description:')} #{PryStackExplorer.frame_manager(_pry_).binding_info_for(b)}".ljust(40)
         sig = meth ? "#{text.bold('Signature:')} #{Pry::Method.new(b_self.method(meth)).signature}".ljust(40) : "".ljust(32)
         type = b.frame_type ? "#{text.bold('Type:')} #{b.frame_type}".ljust(20) : "".ljust(20)
         slf = "#{text.bold('Self:')} #{b_self}".ljust(20)
         path = "#{text.bold("@ File:")} #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
 
 
-        if i == PryStackExplorer.frame_manager.binding_index
+        if i == PryStackExplorer.frame_manager(_pry_).binding_index
           output.puts "=> ##{i + 1} #{desc} #{sig} #{slf} #{type} #{path}"
         else
           output.puts "   ##{i + 1} #{desc} #{sig} #{slf} #{type} #{path}"
@@ -128,14 +134,18 @@ module PryStackExplorer
     end
 
     command "frame", "Switch to a particular frame." do |frame_num|
-      PryStackExplorer.frame_manager.change_binding_to frame_num.to_i, _pry_
+      PryStackExplorer.frame_manager(_pry_).change_binding_to frame_num.to_i
     end
 
     command "frame-type", "Display current frame type." do
-      bindex = PryStackExplorer.frame_manager.binding_index
-      output.puts PryStackExplorer.frame_manager.bindings[bindex].frame_type
+      bindex = PryStackExplorer.frame_manager(_pry_).binding_index
+      output.puts PryStackExplorer.frame_manager(_pry_).bindings[bindex].frame_type
     end
   end
+end
+
+Pry.config.hooks.add_hook(:after_session, :delete_frame_manager) do |_, _, _pry_|
+  PryStackExplorer.delete_frame_manager(_pry_)
 end
 
 Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |binding_stack, _pry_|
@@ -158,8 +168,7 @@ Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |binding_stac
   end
 
   binding_stack.replace([bindings.first])
-
-  PryStackExplorer.frame_manager = PryStackExplorer::FrameManager.new(bindings)
+  PryStackExplorer.add_frame_manager(bindings, _pry_)
 end
 
 Pry.config.commands.import PryStackExplorer::StackCommands
@@ -167,9 +176,9 @@ Pry.config.commands.import PryStackExplorer::StackCommands
 # monkey-patch the whereami command to show some frame information,
 # useful for navigating stack.
 Pry.config.commands.before_command("whereami") do |num|
-  if PryStackExplorer.frame_manager
-    bindings      = PryStackExplorer.frame_manager.bindings
-    binding_index = PryStackExplorer.frame_manager.binding_index
+  if PryStackExplorer.frame_manager(_pry_)
+    bindings      = PryStackExplorer.frame_manager(_pry_).bindings
+    binding_index = PryStackExplorer.frame_manager(_pry_).binding_index
 
     output.puts "\n"
     output.puts "#{Pry::Helpers::Text.bold('Frame number:')} #{binding_index + 1}/#{bindings.size}"
