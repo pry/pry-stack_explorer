@@ -20,7 +20,7 @@ end
 
 def c
   u = 50
-  binding.pry
+  J.pry
 end
 
 proc {

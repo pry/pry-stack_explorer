@@ -60,7 +60,7 @@ module PryStackExplorer
       b_self = b.eval('self')
       b_method = b.eval('__method__')
 
-      if b_method
+      if b_method && b_method != :__binding__ && b_method != :__binding_impl__
         b_method.to_s
       elsif b_self.instance_of?(Module)
         "<module:#{b_self}>"
@@ -111,35 +111,42 @@ module PryStackExplorer
     end
 
     command "show-stack", "Show all frames" do
-      output.puts "\n#{text.bold('Showing all accessible frames in stack:')}\n--\n"
+      if !PryStackExplorer.frame_manager(_pry_)
+        output.puts "No caller stack available!"
+      else
+        output.puts "\n#{text.bold('Showing all accessible frames in stack:')}\n--\n"
 
-      PryStackExplorer.frame_manager(_pry_).bindings.each_with_index do |b, i|
-        meth = b.eval('__method__')
-        b_self = b.eval('self')
+        PryStackExplorer.frame_manager(_pry_).bindings.each_with_index do |b, i|
+          meth = b.eval('__method__')
+          b_self = b.eval('self')
 
-        desc = b.frame_description ? "#{text.bold('Description:')} #{b.frame_description}".ljust(40) :
-          "#{text.bold('Description:')} #{PryStackExplorer.frame_manager(_pry_).binding_info_for(b)}".ljust(40)
-        sig = meth ? "#{text.bold('Signature:')} #{Pry::Method.new(b_self.method(meth)).signature}".ljust(40) : "".ljust(32)
-        type = b.frame_type ? "#{text.bold('Type:')} #{b.frame_type}".ljust(20) : "".ljust(20)
-        slf = "#{text.bold('Self:')} #{b_self}".ljust(20)
-        path = "#{text.bold("@ File:")} #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
+          desc = b.frame_description ? "#{text.bold('Description:')} #{b.frame_description}".ljust(40) :
+            "#{text.bold('Description:')} #{PryStackExplorer.frame_manager(_pry_).binding_info_for(b)}".ljust(40)
+          sig = meth ? "#{text.bold('Signature:')} #{Pry::Method.new(b_self.method(meth)).signature}".ljust(40) : "".ljust(32)
+          type = b.frame_type ? "#{text.bold('Type:')} #{b.frame_type}".ljust(20) : "".ljust(20)
+          slf = "#{text.bold('Self:')} #{b_self}".ljust(20)
+          path = "#{text.bold("@ File:")} #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
 
 
-        if i == PryStackExplorer.frame_manager(_pry_).binding_index
-          output.puts "=> ##{i + 1} #{desc} #{sig} #{slf} #{type} #{path}"
-        else
-          output.puts "   ##{i + 1} #{desc} #{sig} #{slf} #{type} #{path}"
+          if i == PryStackExplorer.frame_manager(_pry_).binding_index
+            output.puts "=> ##{i + 1} #{desc} #{sig} #{slf} #{type} #{path}"
+          else
+            output.puts "   ##{i + 1} #{desc} #{sig} #{slf} #{type} #{path}"
+          end
         end
       end
     end
 
     command "frame", "Switch to a particular frame." do |frame_num|
-      PryStackExplorer.frame_manager(_pry_).change_binding_to frame_num.to_i
+      if !PryStackExplorer.frame_manager(_pry_)
+        output.puts "nowhere to go!"
+      else
+        PryStackExplorer.frame_manager(_pry_).change_binding_to frame_num.to_i
+      end
     end
 
     command "frame-type", "Display current frame type." do
-      bindex = PryStackExplorer.frame_manager(_pry_).binding_index
-      output.puts PryStackExplorer.frame_manager(_pry_).bindings[bindex].frame_type
+      output.puts _pry_.binding_stack.last.frame_type
     end
   end
 end
