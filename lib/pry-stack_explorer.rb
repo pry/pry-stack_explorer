@@ -110,7 +110,17 @@ module PryStackExplorer
       end
     end
 
-    command "show-stack", "Show all frames" do
+    command "show-stack", "Show all frames" do |*args|
+      opts = parse_options!(args) do |opt|
+        opt.banner unindent <<-USAGE
+            Usage: show-stack [OPTIONS]
+            Show all accessible stack frames.
+            e.g: show-stack -v
+          USAGE
+
+        opt.on :v, :verbose, "Include extra information."
+      end
+
       if !PryStackExplorer.frame_manager(_pry_)
         output.puts "No caller stack available!"
       else
@@ -127,11 +137,13 @@ module PryStackExplorer
           slf = "#{text.bold('Self:')} #{b_self}".ljust(20)
           path = "#{text.bold("@ File:")} #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
 
-
+          info = "##{i + 1} #{desc} #{sig} #{slf if opts[:v]} #{type \
+                  if opts[:v]} #{path if opts[:v]}"
           if i == PryStackExplorer.frame_manager(_pry_).binding_index
-            output.puts "=> ##{i + 1} #{desc} #{sig} #{slf} #{type} #{path}"
+
+            output.puts "=> #{info}"
           else
-            output.puts "   ##{i + 1} #{desc} #{sig} #{slf} #{type} #{path}"
+            output.puts "   #{info}"
           end
         end
       end

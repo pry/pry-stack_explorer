@@ -23,8 +23,24 @@ def c
   J.pry
 end
 
+# hello
+def beta
+  gamma
+end
+
+def gamma
+  zeta
+end
+
+def zeta
+  vitamin = 100
+  binding.pry
+end
+#
+
 proc {
   class J
     alphabet(22)
   end
 }.call
+
