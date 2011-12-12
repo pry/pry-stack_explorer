@@ -6,20 +6,36 @@ require "pry"
 require "binding_of_caller"
 
 module PryStackExplorer
-
-  def self.add_frame_manager(bindings, _pry_)
-    Thread.current[:__pry_frame_managers__] ||= {}
-    Thread.current[:__pry_frame_managers__][_pry_] = FrameManager.new(bindings, _pry_)
+  Thread.current[:__pry_frame_managers__] ||= Hash.new { |h, k| h[k] = [] }
+  
+  # Create a `Pry::FrameManager` object and push it onto the frame
+  # manager stack for the relevant `_pry_` instance.
+  # @param [Array] bindings The array of bindings (frames)
+  # @param [Pry] _pry_ The Pry instance associated with the frame manager
+  def self.push_and_create_frame_manager(bindings, _pry_)
+    Thread.current[:__pry_frame_managers__][_pry_].push FrameManager.new(bindings, _pry_)
   end
 
-  def self.delete_frame_manager(_pry_)
-    Thread.current[:__pry_frame_managers__].delete(_pry_)
+  # Delete the currently active frame manager
+  # @param [Pry] _pry_ The Pry instance associated with the frame managers
+  def self.pop_frame_manager(_pry_)
+    Thread.current[:__pry_frame_managers__][_pry_].pop 
   end
 
+  # Clear the stack of frame managers for the Pry instance
+  # @param [Pry] _pry_ The Pry instance associated with the frame managers
+  def self.clear_frame_managers(_pry_)
+    Thread.current[:__pry_frame_managers__][_pry_].clear    
+  end
+
+  # @return [PryStackExplorer::FrameManager] The currently active frame manager
   def self.frame_manager(_pry_)
-    Thread.current[:__pry_frame_managers__][_pry_]
+    Thread.current[:__pry_frame_managers__][_pry_].last
   end
 
+  # Simple test to check whether two `Binding` objects are equal.
+  # @param [Binding] b1 First binding.
+  # @param [Binding] b2 Second binding.
   def self.bindings_equal?(b1, b2)
     (b1.eval('self') == b2.eval('self')) &&
       (b1.eval('__method__') == b2.eval('__method__')) &&
@@ -28,13 +44,24 @@ module PryStackExplorer
   end
 
   class FrameManager
-    attr_reader   :binding_index
+    include Enumerable
+    
+    attr_accessor :binding_index
     attr_accessor :bindings
 
     def initialize(bindings, _pry_)
-      @bindings      = bindings
-      @binding_index = 0
-      @pry           = _pry_
+      self.bindings      = bindings
+      self.binding_index = 0
+      @pry               = _pry_
+    end
+
+    # Replace the current set of bindings (call stack) and binding
+    # index (current frame)
+    # @param [Array] bindings The new call stack (array of bindings)
+    # @param [Fixnum] binding_index The currently 'active' frame (binding).
+    def replace_call_stack(bindings, binding_index = 0)
+      self.bindings      = bindings
+      self.binding_index = binding_index
     end
 
     def convert_from_one_index(n)
@@ -46,14 +73,9 @@ module PryStackExplorer
     end
     private :convert_from_one_index
 
-    def signature(b)
-      if b.eval('__method__')
-        "#{closure_type} in #{b.eval('self').class}##{b.eval('__method__')}"
-      else
-        if b.eval('self').is_a?(Module)
-          "#{closure_type} in <class:#{b.eval('self')}>"
-        end
-      end
+    # Iterate over all frames
+    def each(&block)
+      bindings.each(&block)
     end
 
     def binding_info_for(b)
@@ -71,7 +93,14 @@ module PryStackExplorer
       end
     end
 
-    def change_binding_to(index)
+    def refresh_frame
+      change_frame_to binding_index + 1
+    end
+
+    # Change active frame to the one indexed by `index`.
+    # Note that indexing base is `1`
+    # @param [Fixnum] index The index of the frame.
+    def change_frame_to(index)
       index = convert_from_one_index(index)
 
       if index > bindings.size - 1
@@ -79,7 +108,7 @@ module PryStackExplorer
       elsif index < 0
         @pry.output.puts "Warning: At bottom of stack, cannot go further!"
       else
-        @binding_index = index
+        self.binding_index = index
         @pry.binding_stack[-1] = bindings[binding_index]
 
         @pry.run_command "whereami"
@@ -95,7 +124,7 @@ module PryStackExplorer
         output.puts "Nowhere to go!"
       else
         binding_index = PryStackExplorer.frame_manager(_pry_).binding_index
-        PryStackExplorer.frame_manager(_pry_).change_binding_to binding_index + inc + 1
+        PryStackExplorer.frame_manager(_pry_).change_frame_to binding_index + inc + 1
       end
     end
 
@@ -106,7 +135,7 @@ module PryStackExplorer
         output.puts "Nowhere to go!"
       else
         binding_index = PryStackExplorer.frame_manager(_pry_).binding_index
-        PryStackExplorer.frame_manager(_pry_).change_binding_to binding_index - inc + 1
+        PryStackExplorer.frame_manager(_pry_).change_frame_to binding_index - inc + 1
       end
     end
 
@@ -126,7 +155,7 @@ module PryStackExplorer
       else
         output.puts "\n#{text.bold('Showing all accessible frames in stack:')}\n--\n"
 
-        PryStackExplorer.frame_manager(_pry_).bindings.each_with_index do |b, i|
+        PryStackExplorer.frame_manager(_pry_).each_with_index do |b, i|
           meth = b.eval('__method__')
           b_self = b.eval('self')
 
@@ -140,7 +169,6 @@ module PryStackExplorer
           info = "##{i + 1} #{desc} #{sig} #{slf if opts[:v]} #{type \
                   if opts[:v]} #{path if opts[:v]}"
           if i == PryStackExplorer.frame_manager(_pry_).binding_index
-
             output.puts "=> #{info}"
           else
             output.puts "   #{info}"
@@ -153,7 +181,7 @@ module PryStackExplorer
       if !PryStackExplorer.frame_manager(_pry_)
         output.puts "nowhere to go!"
       else
-        PryStackExplorer.frame_manager(_pry_).change_binding_to frame_num.to_i
+        PryStackExplorer.frame_manager(_pry_).change_frame_to frame_num.to_i
       end
     end
 
@@ -164,7 +192,7 @@ module PryStackExplorer
 end
 
 Pry.config.hooks.add_hook(:after_session, :delete_frame_manager) do |_, _, _pry_|
-  PryStackExplorer.delete_frame_manager(_pry_)
+  PryStackExplorer.clear_frame_managers(_pry_)
 end
 
 Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |binding_stack, _pry_|
@@ -187,7 +215,7 @@ Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |binding_stac
   end
 
   binding_stack.replace([bindings.first])
-  PryStackExplorer.add_frame_manager(bindings, _pry_)
+  PryStackExplorer.push_and_create_frame_manager(bindings, _pry_)
 end
 
 Pry.config.commands.import PryStackExplorer::StackCommands
