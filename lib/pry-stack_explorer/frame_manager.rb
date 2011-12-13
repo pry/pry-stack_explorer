@@ -63,6 +63,11 @@ module PryStackExplorer
       change_frame_to binding_index + 1
     end
 
+    # @return [Binding] The currently active frame
+    def current_frame
+      bindings[binding_index]
+    end
+
     # Change active frame to the one indexed by `index`.
     # Note that indexing base is `1`
     # @param [Fixnum] index The index of the frame.

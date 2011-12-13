@@ -14,7 +14,7 @@ module PryStackExplorer
     command "down", "Go down to the callee's context." do |inc_str|
       inc = inc_str.nil? ? 1 : inc_str.to_i
 
-      if !PryStackExplorer.frame_manager(_pry_)
+      if !PryStackExplorer.frame_manager(_pry_) 
         output.puts "Nowhere to go!"
       else
         binding_index = PryStackExplorer.frame_manager(_pry_).binding_index
