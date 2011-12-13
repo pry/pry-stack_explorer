@@ -6,10 +6,14 @@ module PryStackExplorer
     attr_accessor :binding_index
     attr_accessor :bindings
 
+    # @return [Hash] A hash for user defined data
+    attr_reader :user
+
     def initialize(bindings, _pry_)
       self.bindings      = bindings
       self.binding_index = 0
       @pry               = _pry_
+      @user              = {}
     end
 
     # Replace the current set of bindings (call stack) and binding
