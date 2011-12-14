@@ -48,7 +48,7 @@ namespace :ruby do
     apply_spec_defaults(s)
     s.platform = Gem::Platform::RUBY
   end
-
+b
   Rake::GemPackageTask.new(spec) do |pkg|
     pkg.need_zip = false
     pkg.need_tar = false
@@ -60,6 +60,12 @@ task :gems => [:clean, :rmgems, "ruby:gem"]
 
 desc "remove all platform gems"
 task :rmgems => ["ruby:clobber_package"]
+
+desc "reinstall gem"
+task :reinstall => :gems do
+  sh "gem uninstall pry-exception_explorer"
+  sh "gem install #{direc}/pkg/*.gem"
+end
 
 desc "build and push latest gems"
 task :pushgems => :gems do
