@@ -84,7 +84,7 @@ Pry.config.commands.before_command("whereami") do |num|
     binding_index = PryStackExplorer.frame_manager(_pry_).binding_index
 
     output.puts "\n"
-    output.puts "#{Pry::Helpers::Text.bold('Frame number:')} #{binding_index + 1}/#{bindings.size}"
+    output.puts "#{Pry::Helpers::Text.bold('Frame number:')} #{binding_index}/#{bindings.size - 1}"
     output.puts "#{Pry::Helpers::Text.bold('Frame type:')} #{bindings[binding_index].frame_type}" if bindings[binding_index].frame_type
   end
 end

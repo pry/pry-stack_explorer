@@ -7,7 +7,7 @@ module PryStackExplorer
         output.puts "Nowhere to go!"
       else
         binding_index = PryStackExplorer.frame_manager(_pry_).binding_index
-        PryStackExplorer.frame_manager(_pry_).change_frame_to binding_index + inc + 1
+        PryStackExplorer.frame_manager(_pry_).change_frame_to binding_index + inc 
       end
     end
 
@@ -18,7 +18,7 @@ module PryStackExplorer
         output.puts "Nowhere to go!"
       else
         binding_index = PryStackExplorer.frame_manager(_pry_).binding_index
-        PryStackExplorer.frame_manager(_pry_).change_frame_to binding_index - inc + 1
+        PryStackExplorer.frame_manager(_pry_).change_frame_to binding_index - inc 
       end
     end
 
@@ -49,7 +49,7 @@ module PryStackExplorer
           slf = "#{text.bold('Self:')} #{b_self}".ljust(20)
           path = "#{text.bold("@ File:")} #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
 
-          info = "##{i + 1} #{desc} #{sig} #{slf if opts[:v]} #{type \
+          info = "##{i} #{desc} #{sig} #{slf if opts[:v]} #{type \
                   if opts[:v]} #{path if opts[:v]}"
           if i == PryStackExplorer.frame_manager(_pry_).binding_index
             output.puts "=> #{info}"

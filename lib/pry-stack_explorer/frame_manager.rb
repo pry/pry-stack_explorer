@@ -25,15 +25,6 @@ module PryStackExplorer
       self.binding_index = binding_index
     end
 
-    def convert_from_one_index(n)
-      if n >= 0
-        n - 1
-      else
-        n
-      end
-    end
-    private :convert_from_one_index
-
     # Iterate over all frames
     def each(&block)
       bindings.each(&block)
@@ -60,7 +51,7 @@ module PryStackExplorer
     # Ensure the Pry instance's active binding is the frame manager's
     # active binding.
     def refresh_frame
-      change_frame_to binding_index + 1
+      change_frame_to binding_index 
     end
 
     # @return [Binding] The currently active frame
@@ -69,10 +60,9 @@ module PryStackExplorer
     end
 
     # Change active frame to the one indexed by `index`.
-    # Note that indexing base is `1`
+    # Note that indexing base is `0`
     # @param [Fixnum] index The index of the frame.
     def change_frame_to(index)
-      index = convert_from_one_index(index)
 
       if index > bindings.size - 1
         @pry.output.puts "Warning: At top of stack, cannot go further!"
