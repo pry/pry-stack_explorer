@@ -46,10 +46,10 @@ module PryStackExplorer
             "#{text.bold('Description:')} #{PryStackExplorer.frame_manager(_pry_).frame_info_for(b)}".ljust(40)
           sig = meth ? "#{text.bold('Signature:')} #{Pry::Method.new(b_self.method(meth)).signature}".ljust(40) : "".ljust(32)
           type = b.frame_type ? "#{text.bold('Type:')} #{b.frame_type}".ljust(20) : "".ljust(20)
-          slf = "#{text.bold('Self:')} #{b_self}".ljust(20)
+          slf_class = "#{text.bold('Self.class:')} #{b_self.class}".ljust(20)
           path = "#{text.bold("@ File:")} #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
 
-          info = "##{i} #{desc} #{sig} #{slf if opts[:v]} #{type \
+          info = "##{i} #{desc} #{slf_class} #{sig} #{type \
                   if opts[:v]} #{path if opts[:v]}"
           if i == PryStackExplorer.frame_manager(_pry_).binding_index
             output.puts "=> #{info}"
