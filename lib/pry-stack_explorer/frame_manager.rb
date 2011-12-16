@@ -16,15 +16,6 @@ module PryStackExplorer
       @user              = {}
     end
 
-    # Replace the current set of bindings (call stack) and binding
-    # index (current frame)
-    # @param [Array] bindings The new call stack (array of bindings)
-    # @param [Fixnum] binding_index The currently 'active' frame (binding).
-    def replace_call_stack(bindings, binding_index = 0)
-      self.bindings      = bindings
-      self.binding_index = binding_index
-    end
-
     # Iterate over all frames
     def each(&block)
       bindings.each(&block)

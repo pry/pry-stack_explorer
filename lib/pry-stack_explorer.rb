@@ -14,7 +14,7 @@ module PryStackExplorer
   # manager stack for the relevant `_pry_` instance.
   # @param [Array] bindings The array of bindings (frames)
   # @param [Pry] _pry_ The Pry instance associated with the frame manager
-  def self.push_and_create_frame_manager(bindings, _pry_)
+  def self.create_and_push_frame_manager(bindings, _pry_)
     Thread.current[:__pry_frame_managers__][_pry_].push FrameManager.new(bindings, _pry_)
   end
 
@@ -70,7 +70,7 @@ Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |binding_stac
   end
 
   binding_stack.replace([bindings.first])
-  PryStackExplorer.push_and_create_frame_manager(bindings, _pry_)
+  PryStackExplorer.create_and_push_frame_manager(bindings, _pry_)
 end
 
 # Import the StackExplorer commands
