@@ -8,30 +8,37 @@ require "pry"
 require "binding_of_caller"
 
 module PryStackExplorer
-  Thread.current[:__pry_frame_managers__] ||= Hash.new { |h, k| h[k] = [] }
-  
+
+  def self.init_frame_managers
+    Thread.current[:__pry_frame_managers__] ||= Hash.new { |h, k| h[k] = [] }
+  end
+
   # Create a `Pry::FrameManager` object and push it onto the frame
   # manager stack for the relevant `_pry_` instance.
   # @param [Array] bindings The array of bindings (frames)
   # @param [Pry] _pry_ The Pry instance associated with the frame manager
   def self.create_and_push_frame_manager(bindings, _pry_)
+    init_frame_hash
     Thread.current[:__pry_frame_managers__][_pry_].push FrameManager.new(bindings, _pry_)
   end
 
   # Delete the currently active frame manager
   # @param [Pry] _pry_ The Pry instance associated with the frame managers
   def self.pop_frame_manager(_pry_)
-    Thread.current[:__pry_frame_managers__][_pry_].pop 
+    init_frame_hash
+    Thread.current[:__pry_frame_managers__][_pry_].pop
   end
 
   # Clear the stack of frame managers for the Pry instance
   # @param [Pry] _pry_ The Pry instance associated with the frame managers
   def self.clear_frame_managers(_pry_)
-    Thread.current[:__pry_frame_managers__][_pry_].clear    
+    init_frame_hash
+    Thread.current[:__pry_frame_managers__][_pry_].clear
   end
 
   # @return [PryStackExplorer::FrameManager] The currently active frame manager
   def self.frame_manager(_pry_)
+    init_frame_hash
     Thread.current[:__pry_frame_managers__][_pry_].last
   end
 
