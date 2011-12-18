@@ -22,7 +22,7 @@ def apply_spec_defaults(s)
   s.email = 'jrmair@gmail.com'
   s.description = s.summary
   s.require_path = 'lib'
-  s.add_dependency("binding_of_caller","~>0.6.0")
+  s.add_dependency("binding_of_caller","~>0.6.1")
   s.add_development_dependency("bacon","~>1.1.0")
   s.homepage = "https://github.com/banister"
   s.files = Dir["lib/**/*.rb", "test/*.rb", "CHANGELOG", "README.md", "Rakefile"]
@@ -36,6 +36,11 @@ end
 desc "Run example"
 task :example do
   sh "ruby -I#{direc}/lib/ #{direc}/examples/example.rb "
+end
+
+desc "Show version"
+task :version do
+  puts "PryStackExplorer version: #{PryStackExplorer::VERSION}"
 end
 
 desc "run tests"
@@ -52,6 +57,13 @@ namespace :ruby do
   Rake::GemPackageTask.new(spec) do |pkg|
     pkg.need_zip = false
     pkg.need_tar = false
+  end
+
+  desc  "Generate gemspec file"
+  task :gemspec do
+    File.open("#{spec.name}.gemspec", "w") do |f|
+      f << spec.to_ruby
+    end
   end
 end
 
