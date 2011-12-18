@@ -9,7 +9,7 @@ require "binding_of_caller"
 
 module PryStackExplorer
 
-  def self.init_frame_managers
+  def self.init_frame_hash
     Thread.current[:__pry_frame_managers__] ||= Hash.new { |h, k| h[k] = [] }
   end
 
