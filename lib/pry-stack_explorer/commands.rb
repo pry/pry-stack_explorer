@@ -67,33 +67,34 @@ module PryStackExplorer
     helpers do
       def frame_info(b, verbose = false)
         meth = b.eval('__method__')
-        methobj = b.eval('method(__method__)') if meth
         b_self = b.eval('self')
+        meth_obj = Pry::Method.new(b_self.method(meth)) if meth
 
-        desc = b.frame_description ? "#{text.bold('Description:')} #{b.frame_description}".ljust(40) :
-          "#{text.bold('Description:')} #{PryStackExplorer.frame_manager(_pry_).frame_info_for(b)}".ljust(40)
-        sig = meth ? "#{text.bold('Signature:')} #{signature_with_values(b, methobj)}".ljust(40) : "".ljust(32)
-        type = b.frame_type ? "#{text.bold('Type:')} #{b.frame_type}".ljust(20) : "".ljust(20)
-        slf_class = "#{text.bold('Self.class:')} #{b_self.class}".ljust(20)
+        type = b.frame_type ? "(#{b.frame_type})".ljust(20) : "".ljust(20)
+        desc = b.frame_description ? "#{text.bold('Description:')} #{b.frame_description}".ljust(60) :
+          "#{text.bold('Description:')} #{PryStackExplorer.frame_manager(_pry_).frame_info_for(b)}".ljust(60)
+        sig = meth ? "#{text.bold('Signature:')} #{se_signature_with_owner(meth_obj)}".ljust(40) : "".ljust(32)
+
+        slf_class = "#{text.bold('Self.class:')} #{b_self.class}".ljust(30)
         path = "#{text.bold("@ File:")} #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
 
-        "#{desc} #{slf_class} #{sig} #{type if verbose} #{path if verbose}"
+        "#{desc} #{slf_class} #{sig} #{type} #{path if verbose}"
       end
 
-      def signature_with_values(b, meth)
-          args = meth.parameters.inject([]) do |arr, (type, name)|
-            name ||= (type == :block ? 'block' : "arg#{arr.size + 1}")
-            arr << case type
-                   when :req   then "#{name}=#{b.eval(name.to_s)}"
-                   when :opt   then "#{name}=#{b.eval(name.to_s)}"
-                   when :rest  then "*#{name}=#{b.eval(name.to_s)}"
-                   when :block then "&#{name}"
-                   else '?'
-                   end
+      def se_signature_with_owner(meth_obj)
+        args = meth_obj.parameters.inject([]) do |arr, (type, name)|
+          name ||= (type == :block ? 'block' : "arg#{arr.size + 1}")
+          arr << case type
+                 when :req   then name.to_s
+                 when :opt   then "#{name}=?"
+                 when :rest  then "*#{name}"
+                 when :block then "&#{name}"
+                 else '?'
+                 end
         end
-        "#{meth.name}(#{args.join(', ')})"
-      end
 
+        "#{meth_obj.name_with_owner}(#{args.join(', ')})"
+      end
     end
 
   end
