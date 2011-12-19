@@ -1,8 +1,8 @@
 module PryStackExplorer
-  
+
   class FrameManager
     include Enumerable
-    
+
     attr_accessor :binding_index
     attr_accessor :bindings
 
@@ -42,7 +42,7 @@ module PryStackExplorer
     # Ensure the Pry instance's active binding is the frame manager's
     # active binding.
     def refresh_frame
-      change_frame_to binding_index 
+      change_frame_to binding_index
     end
 
     # @return [Binding] The currently active frame
@@ -57,15 +57,18 @@ module PryStackExplorer
 
       if index > bindings.size - 1
         @pry.output.puts "Warning: At top of stack, cannot go further!"
-      elsif index < 0
+      elsif index < -bindings.size
         @pry.output.puts "Warning: At bottom of stack, cannot go further!"
       else
+        # wrap around negative indices
+        index = (bindings.size - 1) + index + 1 if index < 0
+
         self.binding_index = index
         @pry.binding_stack[-1] = bindings[binding_index]
 
         @pry.run_command "whereami"
       end
     end
-    
+
   end
 end
