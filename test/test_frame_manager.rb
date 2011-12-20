@@ -47,7 +47,7 @@ describe PryStackExplorer::FrameManager do
   end
 
   describe "FrameManager#refresh_frame" do
-    it 'should change the frame to the given one' do
+    it 'should change the Pry frame to the active one in the FrameManager' do
       @frame_manager.binding_index = 2
       @frame_manager.refresh_frame
 
