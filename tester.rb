@@ -10,7 +10,18 @@ end
 
 def c
   u = 50
-  5.pry
+  binding.pry
+  puts "hi"
+  puts "bye"
+  v = 20
+  puts v
+  k
+end
+
+def k
+  puts "lovely girl"
+  james = "hello"
+  puts james
 end
 
 a

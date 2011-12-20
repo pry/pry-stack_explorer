@@ -1,3 +1,5 @@
+require 'pry'
+
 module PryStackExplorer
   StackCommands = Pry::CommandSet.new do
     command "up", "Go up to the caller's context. Accepts optional numeric parameter for how many frames to move up." do |inc_str|
@@ -77,15 +79,14 @@ module PryStackExplorer
         b_self = b.eval('self')
         meth_obj = Pry::Method.new(b_self.method(meth)) if meth
 
-        type = b.frame_type ? "(#{b.frame_type})" : ""
-        desc = b.frame_description ? "#{text.bold('Description:')} #{b.frame_description}".ljust(60) :
-          "#{text.bold('Description:')} #{PryStackExplorer.frame_manager(_pry_).frame_info_for(b)}".ljust(60)
-        sig = meth ? "#{text.bold('Signature:')} #{se_signature_with_owner(meth_obj)}".ljust(40) : "".ljust(32)
+        type = b.frame_type ? "[#{b.frame_type}]" : ""
+        desc = b.frame_description ? "#{b.frame_description} in " : "#{PryStackExplorer.frame_manager(_pry_).frame_info_for(b)} in "
+        sig = meth ? "#{se_signature_with_owner(meth_obj)}" : ""
 
-        slf_class = "#{text.bold('Self.class:')} #{b_self.class}".ljust(40)
-        path = "#{text.bold("@ File:")} #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
+        slf_class = "#{Pry.view_clip(b_self)}"
+        path = "@ #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
 
-        "#{desc} #{slf_class} #{sig} #{type} #{path if verbose}"
+        "#{desc} #{slf_class} #{sig} #{path if verbose} #{type}"
       end
 
       def se_signature_with_owner(meth_obj)
