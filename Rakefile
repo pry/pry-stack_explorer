@@ -25,8 +25,10 @@ def apply_spec_defaults(s)
   s.add_dependency("binding_of_caller","~>0.6.1")
   s.add_dependency("pry","~>0.9.8.0pre1")
   s.add_development_dependency("bacon","~>1.1.0")
+  s.add_development_dependency('rake', '~> 0.9')
   s.homepage = "https://github.com/banister"
-  s.files = Dir["lib/**/*.rb", "test/*.rb", "CHANGELOG", "README.md", "Rakefile"]
+  s.files = `git ls-files`.split("\n")
+  s.test_files = `git ls-files -- test/*`.split("\n")
 end
 
 desc "run pry with plugin enabled"
