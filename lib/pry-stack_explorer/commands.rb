@@ -77,7 +77,7 @@ module PryStackExplorer
       def frame_info(b, verbose = false)
         meth = b.eval('__method__')
         b_self = b.eval('self')
-        meth_obj = Pry::Method.new(b_self.method(meth)) if meth
+        meth_obj = Pry::Method.from_binding(b) if meth
 
         type = b.frame_type ? "[#{b.frame_type}]" : ""
         desc = b.frame_description ? "#{b.frame_description} in " : "#{PryStackExplorer.frame_manager(_pry_).frame_info_for(b)} in "
@@ -90,18 +90,22 @@ module PryStackExplorer
       end
 
       def se_signature_with_owner(meth_obj)
-        args = meth_obj.parameters.inject([]) do |arr, (type, name)|
-          name ||= (type == :block ? 'block' : "arg#{arr.size + 1}")
-          arr << case type
-                 when :req   then name.to_s
-                 when :opt   then "#{name}=?"
-                 when :rest  then "*#{name}"
-                 when :block then "&#{name}"
-                 else '?'
-                 end
+        if !meth_obj.undefined?
+          args = meth_obj.parameters.inject([]) do |arr, (type, name)|
+            name ||= (type == :block ? 'block' : "arg#{arr.size + 1}")
+            arr << case type
+                   when :req   then name.to_s
+                   when :opt   then "#{name}=?"
+                   when :rest  then "*#{name}"
+                   when :block then "&#{name}"
+                   else '?'
+                   end
+          end
+          "#{meth_obj.name_with_owner}(#{args.join(', ')})"
+        else
+          "#{meth_obj.name_with_owner}(UNKNOWN) (undefined method)"
         end
 
-        "#{meth_obj.name_with_owner}(#{args.join(', ')})"
       end
     end
 
