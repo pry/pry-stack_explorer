@@ -23,6 +23,7 @@ def apply_spec_defaults(s)
   s.description = s.summary
   s.require_path = 'lib'
   s.add_dependency("binding_of_caller","~>0.6.1")
+  s.add_dependency("pry","~>0.9.8.0pre1")
   s.add_development_dependency("bacon","~>1.1.0")
   s.homepage = "https://github.com/banister"
   s.files = Dir["lib/**/*.rb", "test/*.rb", "CHANGELOG", "README.md", "Rakefile"]
@@ -47,6 +48,9 @@ desc "run tests"
 task :test do
   sh "bacon -Itest -rubygems -a"
 end
+
+desc "run tests"
+task :default => :test
 
 namespace :ruby do
   spec = Gem::Specification.new do |s|
