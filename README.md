@@ -3,9 +3,23 @@ pry-stack_explore
 
 (C) John Mair (banisterfiend) 2011
 
-FIXME: _tagline_
+_Walk the stack in a Pry session_
 
-FIXME: _description goes here_
+`pry-stack_explorer` is a plugin for the [Pry](http://pry.github.com)
+REPL that enables navigation of the call-stack.
+
+From the point a Pry session is started, you can move up the stack
+through parent frames, examine state, and even evaluate code.
+
+Unlike `ruby-debug`, `pry-stack_explorer` incurs no runtime cost and
+enables navigation right up the call-stack to the birth of your
+program.
+
+`pry-stack_explorer` is currently designed to work on MRI and
+Ruby 1.9.2+ (including 1.9.3). Support for other Ruby versions and
+implementations is planned for the future.
+
+The `up`, `down`, `frame` and `show-stack` commands are provided.
 
 * Install the [gem](https://rubygems.org/gems/pry-stack_explore): `gem install pry-stack_explore`
 * Read the [documentation](http://rdoc.info/github/banister/pry-stack_explore/master/file/README.md)
@@ -32,7 +46,7 @@ Problems or questions contact me at [github](http://github.com/banister)
 License
 -------
 
-(The MIT License) 
+(The MIT License)
 
 Copyright (c) 2011 John Mair (banisterfiend)
 
