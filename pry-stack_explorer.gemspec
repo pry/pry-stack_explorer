@@ -21,18 +21,18 @@ Gem::Specification.new do |s|
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<binding_of_caller>, ["~> 0.6.1"])
-      s.add_runtime_dependency(%q<pry>, [">= 0.9.8pre2"])
+      s.add_runtime_dependency(%q<pry>, ["= 0.9.8pre2"])
       s.add_development_dependency(%q<bacon>, ["~> 1.1.0"])
       s.add_development_dependency(%q<rake>, ["~> 0.9"])
     else
       s.add_dependency(%q<binding_of_caller>, ["~> 0.6.1"])
-      s.add_dependency(%q<pry>, [">= 0.9.8pre2"])
+      s.add_dependency(%q<pry>, ["= 0.9.8pre2"])
       s.add_dependency(%q<bacon>, ["~> 1.1.0"])
       s.add_dependency(%q<rake>, ["~> 0.9"])
     end
   else
     s.add_dependency(%q<binding_of_caller>, ["~> 0.6.1"])
-    s.add_dependency(%q<pry>, [">= 0.9.8pre2"])
+    s.add_dependency(%q<pry>, ["= 0.9.8pre2"])
     s.add_dependency(%q<bacon>, ["~> 1.1.0"])
     s.add_dependency(%q<rake>, ["~> 0.9"])
   end
