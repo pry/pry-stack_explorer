@@ -26,6 +26,7 @@ def apply_spec_defaults(s)
   s.add_dependency("pry","0.9.8pre2")
   s.add_development_dependency("bacon","~>1.1.0")
   s.add_development_dependency('rake', '~> 0.9')
+  s.required_ruby_version = '>= 1.9.2'
   s.homepage = "https://github.com/banister"
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")
@@ -39,6 +40,11 @@ end
 desc "Run example"
 task :example do
   sh "ruby -I#{direc}/lib/ #{direc}/examples/example.rb "
+end
+
+desc "Run example2"
+task :example2 do
+  sh "ruby -I#{direc}/lib/ #{direc}/examples/example2.rb "
 end
 
 desc "Show version"

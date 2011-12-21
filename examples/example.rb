@@ -19,7 +19,7 @@ end
 
 def c
   u = 50
-  J.pry
+  binding.pry
 end
 
 # hello

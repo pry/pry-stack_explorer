@@ -77,7 +77,7 @@ module PryStackExplorer
 
         type = b.frame_type ? "[#{b.frame_type}]".ljust(9) : ""
         desc = b.frame_description ? "#{b.frame_description}" : "#{PryStackExplorer.frame_manager(_pry_).frame_info_for(b)}"
-        sig = meth ? "<#{se_signature_with_owner(meth_obj)}>" : ""
+        sig = meth_obj ? "<#{se_signature_with_owner(meth_obj)}>" : ""
 
         self_clipped = "#{Pry.view_clip(b_self)}"
         path = "@ #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
