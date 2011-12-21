@@ -23,7 +23,7 @@ def apply_spec_defaults(s)
   s.description = s.summary
   s.require_path = 'lib'
   s.add_dependency("binding_of_caller","~>0.6.1")
-  s.add_dependency("pry",">=0.9.8.0pre1")
+  s.add_dependency("pry",">=0.9.8pre2")
   s.add_development_dependency("bacon","~>1.1.0")
   s.add_development_dependency('rake', '~> 0.9')
   s.homepage = "https://github.com/banister"
