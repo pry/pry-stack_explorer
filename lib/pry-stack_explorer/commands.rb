@@ -80,13 +80,17 @@ module PryStackExplorer
         meth_obj = Pry::Method.from_binding(b) if meth
 
         type = b.frame_type ? "[#{b.frame_type}]" : ""
-        desc = b.frame_description ? "#{b.frame_description} in " : "#{PryStackExplorer.frame_manager(_pry_).frame_info_for(b)} in "
+        desc = b.frame_description ? "#{b.frame_description}" : "#{PryStackExplorer.frame_manager(_pry_).frame_info_for(b)}"
         sig = meth ? "#{se_signature_with_owner(meth_obj)}" : ""
 
         slf_class = "#{Pry.view_clip(b_self)}"
         path = "@ #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
 
-        "#{desc} #{slf_class} #{sig} #{path if verbose} #{type}"
+        if !verbose
+          "#{desc} #{sig} #{type}"
+        else
+          "#{desc} #{sig} #{type}\n      in #{slf_class} #{path}"
+        end
       end
 
       def se_signature_with_owner(meth_obj)
