@@ -64,13 +64,9 @@ module PryStackExplorer
         if frame_num
           PryStackExplorer.frame_manager(_pry_).change_frame_to frame_num.to_i
         else
-          output.puts "##{PryStackExplorer.frame_manager(_pry_).binding_index} #{frame_info(target)}"
+          output.puts "##{PryStackExplorer.frame_manager(_pry_).binding_index} #{frame_info(target, true)}"
         end
       end
-    end
-
-    command "frame-type", "Display current frame type." do
-      output.puts _pry_.binding_stack.last.frame_type
     end
 
     helpers do
@@ -79,17 +75,17 @@ module PryStackExplorer
         b_self = b.eval('self')
         meth_obj = Pry::Method.from_binding(b) if meth
 
-        type = b.frame_type ? "[#{b.frame_type}]" : ""
+        type = b.frame_type ? "[#{b.frame_type}]".ljust(9) : ""
         desc = b.frame_description ? "#{b.frame_description}" : "#{PryStackExplorer.frame_manager(_pry_).frame_info_for(b)}"
-        sig = meth ? "#{se_signature_with_owner(meth_obj)}" : ""
+        sig = meth ? "<#{se_signature_with_owner(meth_obj)}>" : ""
 
-        slf_class = "#{Pry.view_clip(b_self)}"
+        self_clipped = "#{Pry.view_clip(b_self)}"
         path = "@ #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
 
         if !verbose
-          "#{desc} #{sig} #{type}"
+          "#{type} #{desc} #{sig}"
         else
-          "#{desc} #{sig} #{type}\n      in #{slf_class} #{path}"
+          "#{type} #{desc} #{sig}\n      in #{self_clipped} #{path}"
         end
       end
 
