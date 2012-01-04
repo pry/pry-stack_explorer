@@ -23,7 +23,7 @@ def apply_spec_defaults(s)
   s.description = s.summary
   s.require_path = 'lib'
   s.add_dependency("binding_of_caller","~>0.6.1")
-  s.add_dependency("pry","0.9.8pre2")
+  s.add_dependency("pry","0.9.8pre3")
   s.add_development_dependency("bacon","~>1.1.0")
   s.add_development_dependency('rake', '~> 0.9')
   s.required_ruby_version = '>= 1.9.2'
@@ -60,6 +60,9 @@ task :test do
   sh "bacon -Itest -rubygems -a -q"
 end
 
+desc "generate gemspec"
+task :gemspec => "ruby:gemspec"
+
 namespace :ruby do
   spec = Gem::Specification.new do |s|
     apply_spec_defaults(s)
@@ -80,7 +83,7 @@ namespace :ruby do
 end
 
 desc "build all platform gems at once"
-task :gems => [:clean, :rmgems, "ruby:gem"]
+task :gems => [:clean, :rmgems, :gemspec, "ruby:gem"]
 
 desc "remove all platform gems"
 task :rmgems => ["ruby:clobber_package"]
