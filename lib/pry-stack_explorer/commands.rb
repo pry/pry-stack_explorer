@@ -28,8 +28,8 @@ module PryStackExplorer
       end
     end
 
-    command "show-stack", "Show all frames" do |*args|
-      opts = parse_options!(args) do |opt|
+    command_class "show-stack", "Show all frames" do
+      def options(opt)
         opt.banner unindent <<-USAGE
             Usage: show-stack [OPTIONS]
             Show all accessible stack frames.
@@ -39,21 +39,23 @@ module PryStackExplorer
         opt.on :v, :verbose, "Include extra information."
       end
 
-      if !PryStackExplorer.frame_manager(_pry_)
-        output.puts "No caller stack available!"
-      else
-        content = ""
-        content << "\n#{text.bold('Showing all accessible frames in stack:')}\n--\n"
+      def process
+        if !PryStackExplorer.frame_manager(_pry_)
+          output.puts "No caller stack available!"
+        else
+          content = ""
+          content << "\n#{text.bold('Showing all accessible frames in stack:')}\n--\n"
 
-        PryStackExplorer.frame_manager(_pry_).each_with_index do |b, i|
-          if i == PryStackExplorer.frame_manager(_pry_).binding_index
-            content << "=> ##{i} #{frame_info(b, opts[:v])}\n"
-          else
-            content << "   ##{i} #{frame_info(b, opts[:v])}\n"
+          PryStackExplorer.frame_manager(_pry_).each_with_index do |b, i|
+            if i == PryStackExplorer.frame_manager(_pry_).binding_index
+              content << "=> ##{i} #{frame_info(b, opts[:v])}\n"
+            else
+              content << "   ##{i} #{frame_info(b, opts[:v])}\n"
+            end
           end
-        end
 
-        stagger_output content
+          stagger_output content
+        end
       end
     end
 

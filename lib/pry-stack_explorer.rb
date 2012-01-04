@@ -66,23 +66,32 @@ Pry.config.hooks.add_hook(:after_session, :delete_frame_manager) do |_, _, _pry_
   PryStackExplorer.clear_frame_managers(_pry_)
 end
 
-Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |binding_stack, _pry_|
-  target = binding_stack.last
+Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |binding_stack, options, _pry_|
+  options[:call_stack] = true unless options.has_key?(:call_stack)
 
-  if binding.of_caller(6).eval('__method__') == :pry
-    drop_number = 7
+  next if !options[:call_stack]
+
+  if options[:call_stack].is_a?(Array)
+    bindings = options[:call_stack]
+    raise ArgumentError, ":call_stack must be an array of bindings" if bindings.empty? || !bindings.all? { |v| v.is_a?(Binding) }
   else
-    drop_number = 6
-  end
+    target = binding_stack.last
 
-  bindings = binding.callers.drop(drop_number)
+    if binding.of_caller(6).eval('__method__') == :pry
+      drop_number = 7
+    else
+      drop_number = 6
+    end
 
-  # Use the binding returned by #of_caller if possible (as we get
-  # access to frame_type).
-  # Otherwise stick to the given binding (target).
-  if !PryStackExplorer.bindings_equal?(target, bindings.first)
-    bindings.shift
-    bindings.unshift(target)
+    bindings = binding.callers.drop(drop_number)
+
+    # Use the binding returned by #of_caller if possible (as we get
+    # access to frame_type).
+    # Otherwise stick to the given binding (target).
+    if !PryStackExplorer.bindings_equal?(target, bindings.first)
+      bindings.shift
+      bindings.unshift(target)
+    end
   end
 
   binding_stack.replace([bindings.first])
