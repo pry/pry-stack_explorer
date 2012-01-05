@@ -29,10 +29,9 @@ class << Pry
   end
 end
 
-#Pry.config.hooks.clear(:before_session)
-
 AfterSessionHook    = Pry.config.hooks.get_hook(:after_session, :delete_frame_manager)
 WhenStartedHook = Pry.config.hooks.get_hook(:when_started, :save_caller_bindings)
+
 Pry.reset_defaults
 
 class InputTester

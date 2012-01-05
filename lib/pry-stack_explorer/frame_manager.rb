@@ -41,8 +41,8 @@ module PryStackExplorer
 
     # Ensure the Pry instance's active binding is the frame manager's
     # active binding.
-    def refresh_frame
-      change_frame_to binding_index
+    def refresh_frame(run_whereami=true)
+      change_frame_to binding_index, run_whereami
     end
 
     # @return [Binding] The currently active frame
@@ -50,24 +50,36 @@ module PryStackExplorer
       bindings[binding_index]
     end
 
-    # Change active frame to the one indexed by `index`.
-    # Note that indexing base is `0`
-    # @param [Fixnum] index The index of the frame.
-    def change_frame_to(index)
-
+    # Set the binding index (aka frame index), but raising an Exception when invalid
+    # index received. Also converts negative indices to their positive counterparts.
+    # @param [Fixnum] index The index.
+    def set_binding_index_safely(index)
       if index > bindings.size - 1
-        @pry.output.puts "Warning: At top of stack, cannot go further!"
+        raise Pry::CommandError, "At top of stack, cannot go further!"
       elsif index < -bindings.size
-        @pry.output.puts "Warning: At bottom of stack, cannot go further!"
+        raise Pry::CommandError, "At bottom of stack, cannot go further!"
       else
         # wrap around negative indices
         index = (bindings.size - 1) + index + 1 if index < 0
 
         self.binding_index = index
-        @pry.binding_stack[-1] = bindings[binding_index]
-
-        @pry.run_command "whereami"
       end
+    end
+
+    # Change active frame to the one indexed by `index`.
+    # Note that indexing base is `0`
+    # @param [Fixnum] index The index of the frame.
+    def change_frame_to(index, run_whereami=true)
+
+      set_binding_index_safely(index)
+
+      if @pry.binding_stack.empty?
+        @pry.binding_stack.replace [bindings[binding_index]]
+      else
+        @pry.binding_stack[-1] = bindings[binding_index]
+      end
+
+      @pry.run_command "whereami" if run_whereami
     end
 
   end

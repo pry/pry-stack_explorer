@@ -21,7 +21,7 @@ module PryStackExplorer
       else
         binding_index = PryStackExplorer.frame_manager(_pry_).binding_index
         if binding_index - inc < 0
-          output.puts "Warning: At bottom of stack, cannot go further!"
+          raise Pry::CommandError, "At bottom of stack, cannot go further!"
         else
           PryStackExplorer.frame_manager(_pry_).change_frame_to binding_index - inc
         end

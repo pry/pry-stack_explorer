@@ -67,7 +67,9 @@ Pry.config.hooks.add_hook(:after_session, :delete_frame_manager) do |_, _, _pry_
 end
 
 Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |binding_stack, options, _pry_|
-  options[:call_stack] = true unless options.has_key?(:call_stack)
+  options[:call_stack]    = true unless options.has_key?(:call_stack)
+  options[:initial_frame] = 0 unless options.has_key?(:initial_frame)
+  initial_frame = options[:initial_frame]
 
   next if !options[:call_stack]
 
@@ -94,8 +96,9 @@ Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |binding_stac
     end
   end
 
-  binding_stack.replace([bindings.first])
+  binding_stack.replace [bindings[initial_frame]]
   PryStackExplorer.create_and_push_frame_manager(bindings, _pry_)
+  PryStackExplorer.frame_manager(_pry_).set_binding_index_safely(initial_frame)
 end
 
 # Import the StackExplorer commands

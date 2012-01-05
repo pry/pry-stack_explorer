@@ -6,6 +6,12 @@ describe PryStackExplorer do
     before do
       Pry.config.hooks.add_hook(:when_started, :save_caller_bindings, &WhenStartedHook)
       Pry.config.hooks.add_hook(:after_session, :delete_frame_manager, &AfterSessionHook)
+
+      @o = Object.new
+      class << @o; attr_reader :frame; end
+      def @o.bing() bong end
+      def @o.bong() bang end
+      def @o.bang() Pry.start(binding) end
     end
 
     after do
@@ -13,52 +19,88 @@ describe PryStackExplorer do
       Pry.config.hooks.delete_hook(:after_session, :delete_frame_manager)
     end
 
-    it 'should invoke a session with the call stack set' do
-      o = Object.new
-      def o.bing() bong end
-      def o.bong() bang end
-      def o.bang() Pry.start(binding) end
+    describe ":initial_frame option" do
+      it 'should default to first frame when no option provided' do
+        redirect_pry_io(StringIO.new("@frame = __method__\nexit\n"), out=StringIO.new) do
+          @o.bing
+        end
 
-      redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
-        o.bing
+        @o.frame.should == :bang
       end
 
-      out.string.should =~ /bang.*?bong.*?bing/m
+      it 'should begin session at specified frame' do
+        o = Object.new
+        class << o; attr_reader :frame; end
+        def o.bing() bong end
+        def o.bong() bang end
+        def o.bang() Pry.start(binding, :initial_frame => 1) end
+
+        redirect_pry_io(StringIO.new("@frame = __method__\nexit\n"), out=StringIO.new) do
+          o.bing
+        end
+
+        o.frame.should == :bong
+      end
+
+      it 'should begin session at specified frame when using :call_stack' do
+        o = Object.new
+        class << o; attr_accessor :frame; end
+        def o.alpha() binding end
+        def o.beta() binding end
+        def o.gamma() binding end
+
+        redirect_pry_io(StringIO.new("@frame = __method__\nexit\n"), out=StringIO.new) do
+          Pry.start(binding, :call_stack => [o.gamma, o.beta, o.alpha], :initial_frame => 1)
+        end
+
+        o.frame.should == :beta
+      end
+
     end
 
-    it 'should set no call stack when :call_stack => false' do
-      o = Object.new
-      def o.bing() bong end
-      def o.bong() bang end
-      def o.bang() Pry.start(binding, :call_stack => false) end
+    describe ":call_stack option" do
+      it 'should invoke a session with the call stack set' do
+        redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
+          @o.bing
+        end
 
-      redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
-        o.bing
+        out.string.should =~ /bang.*?bong.*?bing/m
       end
 
-      out.string.should =~ /No caller stack/
-    end
+      it 'should set no call stack when :call_stack => false' do
+        o = Object.new
+        def o.bing() bong end
+        def o.bong() bang end
+        def o.bang() Pry.start(binding, :call_stack => false) end
 
-    it 'should set custom call stack when :call_stack => [b1, b2]' do
-      o = Object.new
-      def o.alpha() binding end
-      def o.beta() binding end
-      def o.gamma() binding end
+        redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
+          o.bing
+        end
 
-      redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
-        Pry.start(binding, :call_stack => [o.beta, o.gamma, o.alpha])
+        out.string.should =~ /No caller stack/
       end
 
-      out.string.should =~ /beta.*?gamma.*?alpha/m
-    end
+      it 'should set custom call stack when :call_stack => [b1, b2]' do
+        o = Object.new
+        def o.alpha() binding end
+        def o.beta() binding end
+        def o.gamma() binding end
 
-    it 'should raise if custom call stack does not contain bindings or is empty' do
-      redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
-        lambda { Pry.start(binding, :call_stack => [1, 2, 3]) }.should.raise ArgumentError
+        redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
+          Pry.start(binding, :call_stack => [o.beta, o.gamma, o.alpha])
+        end
+
+        out.string.should =~ /beta.*?gamma.*?alpha/m
       end
 
-      redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
-        lambda { Pry.start(binding, :call_stack => []) }.should.raise ArgumentError
+      it 'should raise if custom call stack does not contain bindings or is empty' do
+        redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
+          lambda { Pry.start(binding, :call_stack => [1, 2, 3]) }.should.raise ArgumentError
+        end
+
+        redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
+          lambda { Pry.start(binding, :call_stack => []) }.should.raise ArgumentError
+        end
       end
     end
   end
