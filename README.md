@@ -5,6 +5,10 @@ pry-stack_explorer
 
 _Walk the stack in a Pry session_
 
+**Please note, pry-stack_explorer has not been officially released yet and the prerelease gem that is available is NOT compatible with the current Pry gem (0.9.7.4).
+The prerelease gem only exists for testing purposes among Pry core committers. This gem will be fully available soon, when the next Pry version (0.9.8) is released.**
+
+
 pry-stack_explorer is a plugin for the [Pry](http://pry.github.com)
 REPL that enables the user to navigate the call-stack.
 
