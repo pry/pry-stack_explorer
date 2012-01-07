@@ -26,7 +26,7 @@ module PryStackExplorer
   # @param [Pry] _pry_ The Pry instance associated with the frame
   #   managers
   # @return [Array] The stack of Pry::FrameManager objections
-  def self.all_frame_managers(_pry_)
+  def self.frame_managers(_pry_)
     init_frame_hash
     Thread.current[:__pry_frame_managers__][_pry_]
   end
@@ -44,6 +44,8 @@ module PryStackExplorer
     init_frame_hash
     Thread.current[:__pry_frame_managers__][_pry_].clear
   end
+
+  class << self; alias_method :delete_frame_managers, :clear_frame_managers; end
 
   # @return [PryStackExplorer::FrameManager] The currently active frame manager
   def self.frame_manager(_pry_)
