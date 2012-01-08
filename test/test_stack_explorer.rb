@@ -123,6 +123,13 @@ describe PryStackExplorer do
         PE.frame_managers(@pry_instance).count.should == 1
       end
 
+      it 'should save prior binding in FrameManager instance' do
+        _pry_ = Pry.new
+        _pry_.binding_stack.push(b=binding)
+        PryStackExplorer.create_and_push_frame_manager(@bindings, _pry_)
+        PryStackExplorer.frame_manager(_pry_).prior_binding.should == b
+      end
+
       it  "should create and push multiple FrameManagers" do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
