@@ -193,6 +193,14 @@ describe PryStackExplorer do
         PE.frame_managers(@pry_instance).count.should == 0
         PE.frame_managers(p2).count.should == 1
       end
+
+      it "should remove key when no frames remaining for Pry instance" do
+        PE.create_and_push_frame_manager(@bindings, @pry_instance)
+        PE.create_and_push_frame_manager(@bindings, @pry_instance)
+        PE.pop_frame_manager(@pry_instance)
+        PE.pop_frame_manager(@pry_instance)
+        PE.frame_hash.has_key?(@pry_instance).should == false
+      end
     end
 
     describe "PryStackExplorer.clear_frame_managers" do
@@ -200,18 +208,26 @@ describe PryStackExplorer do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.clear_frame_managers(@pry_instance)
-        PE.frame_managers(@pry_instance).count.should == 0
+        PE.frame_hash.has_key?(@pry_instance).should == false
       end
 
-      it "should clear all FrameManagers for a Pry instance" do
+      it "should clear all FrameManagers for a Pry instance but leave others untouched" do
         p2 = Pry.new
         bindings = [binding, binding]
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(bindings, p2)
         PE.clear_frame_managers(@pry_instance)
         PE.frame_managers(p2).count.should == 1
-        PE.frame_managers(@pry_instance).count.should == 0
+        PE.frame_hash.has_key?(@pry_instance).should == false
       end
+
+      it "should remove key" do
+        PE.create_and_push_frame_manager(@bindings, @pry_instance)
+        PE.create_and_push_frame_manager(@bindings, @pry_instance)
+        PE.clear_frame_managers(@pry_instance)
+        PE.frame_hash.has_key?(@pry_instance).should == false
+      end
+
     end
   end
 end
