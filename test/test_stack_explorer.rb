@@ -201,6 +201,23 @@ describe PryStackExplorer do
         PE.pop_frame_manager(@pry_instance)
         PE.frame_hash.has_key?(@pry_instance).should == false
       end
+
+      describe "_pry_.backtrace" do
+        it "should restore backtrace when frame is popped" do
+          p1 = Pry.new
+          bindings = [binding, binding]
+          p1.backtrace = "my backtrace1"
+          PE.create_and_push_frame_manager(bindings, p1)
+          p1.backtrace = "my backtrace2"
+          PE.create_and_push_frame_manager(bindings, p1)
+          p1.backtrace = "my backtrace3"
+
+          PE.pop_frame_manager(p1)
+          p1.backtrace.should == "my backtrace2"
+          PE.pop_frame_manager(p1)
+          p1.backtrace.should == "my backtrace1"
+        end
+      end
     end
 
     describe "PryStackExplorer.clear_frame_managers" do
@@ -226,6 +243,21 @@ describe PryStackExplorer do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.clear_frame_managers(@pry_instance)
         PE.frame_hash.has_key?(@pry_instance).should == false
+      end
+
+      describe "_pry_.backtrace" do
+        it "should restore backtrace to initial one when frame managers are cleared" do
+          p1 = Pry.new
+          bindings = [binding, binding]
+          p1.backtrace = "my backtrace1"
+          PE.create_and_push_frame_manager(bindings, p1)
+          p1.backtrace = "my backtrace2"
+          PE.create_and_push_frame_manager(bindings, p1)
+          p1.backtrace = "my backtrace3"
+
+          PE.clear_frame_managers(p1)
+          p1.backtrace.should == "my backtrace1"
+        end
       end
 
     end

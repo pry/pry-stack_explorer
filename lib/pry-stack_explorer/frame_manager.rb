@@ -13,12 +13,17 @@ module PryStackExplorer
     #   FrameManager took over.
     attr_reader :prior_binding
 
+    # @return [Array] The backtrace of the Pry instance before the
+    #   FrameManager took over.
+    attr_reader :prior_backtrace
+
     def initialize(bindings, _pry_)
       self.bindings      = bindings
       self.binding_index = 0
       @pry               = _pry_
       @user              = {}
       @prior_binding     = _pry_.binding_stack.last
+      @prior_backtrace   = _pry_.backtrace
     end
 
     # Iterate over all frames

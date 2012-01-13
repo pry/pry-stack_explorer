@@ -1,7 +1,7 @@
 require 'pry'
 
 module PryStackExplorer
-  StackCommands = Pry::CommandSet.new do
+  Commands = Pry::CommandSet.new do
     command "up", "Go up to the caller's context. Accepts optional numeric parameter for how many frames to move up." do |inc_str|
       inc = inc_str.nil? ? 1 : inc_str.to_i
 

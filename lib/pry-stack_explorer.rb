@@ -41,8 +41,9 @@ module PryStackExplorer
   # @param [Pry] _pry_ The Pry instance associated with the frame managers
   def self.pop_frame_manager(_pry_)
     init_frame_hash
-    popped = frame_hash[_pry_].pop
-    frame_hash.delete(_pry_) if frame_hash[_pry_].empty?
+    popped = frame_managers(_pry_).pop
+    frame_hash.delete(_pry_) if frame_managers(_pry_).empty?
+    _pry_.backtrace = popped.prior_backtrace
     popped
   end
 
@@ -50,7 +51,8 @@ module PryStackExplorer
   # @param [Pry] _pry_ The Pry instance associated with the frame managers
   def self.clear_frame_managers(_pry_)
     init_frame_hash
-    frame_hash.delete(_pry_)
+    pop_frame_manager(_pry_) until frame_managers(_pry_).empty?
+    frame_hash.delete(_pry_) # this line should be unnecessary!
   end
 
   class << self; alias_method :delete_frame_managers, :clear_frame_managers; end
@@ -112,7 +114,7 @@ Pry.config.hooks.add_hook(:when_started, :save_caller_bindings) do |binding_stac
 end
 
 # Import the StackExplorer commands
-Pry.config.commands.import PryStackExplorer::StackCommands
+Pry.config.commands.import PryStackExplorer::Commands
 
 # monkey-patch the whereami command to show some frame information,
 # useful for navigating stack.

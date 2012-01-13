@@ -1,6 +1,6 @@
 require 'helper'
 
-describe PryStackExplorer::StackCommands do
+describe PryStackExplorer::Commands do
 
   before do
     Pry.config.hooks.add_hook(:when_started, :save_caller_bindings, &WhenStartedHook)
