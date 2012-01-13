@@ -1,3 +1,3 @@
 module PryStackExplorer
-  VERSION = "0.2.9pre1"
+  VERSION = "0.2.9pre2"
 end
