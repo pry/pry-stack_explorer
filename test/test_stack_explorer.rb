@@ -130,6 +130,13 @@ describe PryStackExplorer do
         PryStackExplorer.frame_manager(_pry_).prior_binding.should == b
       end
 
+      it 'should save prior backtrace in FrameManager instance' do
+        _pry_ = Pry.new
+        _pry_.backtrace = ["my backtrace"]
+        PryStackExplorer.create_and_push_frame_manager(@bindings, _pry_)
+        PryStackExplorer.frame_manager(_pry_).prior_backtrace.should == _pry_.backtrace
+      end
+
       it  "should create and push multiple FrameManagers" do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
