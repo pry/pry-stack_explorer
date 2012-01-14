@@ -4,7 +4,7 @@ describe PryStackExplorer do
 
   describe "Pry.start" do
     before do
-      Pry.config.hooks.add_hook(:when_started, :save_caller_bindings, &WhenStartedHook)
+      Pry.config.hooks.add_hook(:when_started, :save_caller_bindings, WhenStartedHook)
       Pry.config.hooks.add_hook(:after_session, :delete_frame_manager, &AfterSessionHook)
 
       @o = Object.new

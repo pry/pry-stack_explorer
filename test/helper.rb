@@ -29,8 +29,8 @@ class << Pry
   end
 end
 
-AfterSessionHook    = Pry.config.hooks.get_hook(:after_session, :delete_frame_manager)
-WhenStartedHook = Pry.config.hooks.get_hook(:when_started, :save_caller_bindings)
+AfterSessionHook = Pry.config.hooks.get_hook(:after_session, :delete_frame_manager)
+WhenStartedHook  = Pry.config.hooks.get_hook(:when_started, :save_caller_bindings)
 
 Pry.reset_defaults
 
