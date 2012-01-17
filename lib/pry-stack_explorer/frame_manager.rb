@@ -3,8 +3,12 @@ module PryStackExplorer
   class FrameManager
     include Enumerable
 
-    attr_accessor :binding_index
+    # @return [Array<Binding>] The array of bindings that constitute
+    #   the call-stack.
     attr_accessor :bindings
+
+    # @return [Fixnum] The index of the active frame (binding) in the call-stack.
+    attr_accessor :binding_index
 
     # @return [Hash] A hash for user defined data
     attr_reader :user

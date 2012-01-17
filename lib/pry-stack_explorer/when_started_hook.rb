@@ -24,22 +24,26 @@ module PryStackExplorer
     end
 
     def call(binding_stack, options, _pry_)
-      options[:call_stack]    = true unless options.has_key?(:call_stack)
-      options[:initial_frame] = 0 unless options.has_key?(:initial_frame)
-      initial_frame = options[:initial_frame]
+      options = {
+        :call_stack    => true,
+        :initial_frame => 0
+      }.merge!(options)
 
       return if !options[:call_stack]
 
       if options[:call_stack].is_a?(Array)
         bindings = options[:call_stack]
-        raise ArgumentError, ":call_stack must be an array of bindings" if bindings.empty? || !bindings.all? { |v| v.is_a?(Binding) }
+
+        if bindings.empty? || !bindings.all? { |v| v.is_a?(Binding) }
+          raise ArgumentError, ":call_stack must be an array of bindings"
+        end
       else
-       bindings = caller_bindings(binding_stack)
+        bindings = caller_bindings(binding_stack)
       end
 
-      binding_stack.replace [bindings[initial_frame]]
-      PryStackExplorer.create_and_push_frame_manager(bindings, _pry_)
-      PryStackExplorer.frame_manager(_pry_).set_binding_index_safely(initial_frame)
+      #binding_stack.replace [bindings[initial_frame]]
+      PryStackExplorer.create_and_push_frame_manager bindings, _pry_, :initial_frame => options[:initial_frame]
+      #PryStackExplorer.frame_manager(_pry_).set_binding_index_safely(initial_frame)
     end
   end
 end
