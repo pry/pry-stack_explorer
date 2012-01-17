@@ -41,9 +41,7 @@ module PryStackExplorer
         bindings = caller_bindings(binding_stack)
       end
 
-      #binding_stack.replace [bindings[initial_frame]]
       PryStackExplorer.create_and_push_frame_manager bindings, _pry_, :initial_frame => options[:initial_frame]
-      #PryStackExplorer.frame_manager(_pry_).set_binding_index_safely(initial_frame)
     end
   end
 end

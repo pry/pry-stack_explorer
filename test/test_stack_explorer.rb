@@ -33,9 +33,9 @@ describe PryStackExplorer do
         class << o; attr_reader :frame; end
         def o.bing() bong end
         def o.bong() bang end
-        def o.bang() Pry.start(binding, :initial_frame => 1) end
+        def o.bang() Pry.start(binding, :initial_frame => 1) end #*
 
-        redirect_pry_io(StringIO.new("@frame = __method__\nexit\n"), out=StringIO.new) do
+        redirect_pry_io(StringIO.new("@frame = __method__\nexit-all\n"), out=StringIO.new) do
           o.bing
         end
 
