@@ -104,7 +104,7 @@ describe PryStackExplorer do
       it 'should raise if custom call stack is empty' do
         o = OpenStruct.new
         redirect_pry_io(StringIO.new("self.errors = _pry_.hooks.errors\nexit\n")) do
-          Pry.start(o, :call_stack => [])
+          Pry.start o, :call_stack => []
         end
         o.errors.first.is_a?(ArgumentError).should == true
       end
@@ -129,11 +129,39 @@ describe PryStackExplorer do
         PE.frame_managers(@pry_instance).count.should == 1
       end
 
+      it "should refresh Pry instance to use FrameManager's active binding" do
+        PE.create_and_push_frame_manager(@bindings, @pry_instance)
+        @pry_instance.binding_stack.size.should  == 1
+        @pry_instance.binding_stack.first.should == @bindings.first
+      end
+
       it 'should save prior binding in FrameManager instance' do
         _pry_ = Pry.new
         _pry_.binding_stack.push(b=binding)
         PryStackExplorer.create_and_push_frame_manager(@bindings, _pry_)
         PryStackExplorer.frame_manager(_pry_).prior_binding.should == b
+      end
+
+      describe ":initial_frame option" do
+        it 'should start on specified frame' do
+          PE.create_and_push_frame_manager(@bindings, @pry_instance, :initial_frame => 1)
+          @pry_instance.binding_stack.size.should  == 1
+          @pry_instance.binding_stack.first.should == @bindings.last
+        end
+
+        describe "negative numbers" do
+          it 'should work with negative frame number (-1)' do
+            PE.create_and_push_frame_manager(@bindings, @pry_instance, :initial_frame => -1)
+            @pry_instance.binding_stack.size.should  == 1
+            @pry_instance.binding_stack.first.should == @bindings.last
+          end
+
+          it 'should work with negative frame number (-2)' do
+            PE.create_and_push_frame_manager(@bindings, @pry_instance, :initial_frame => -2)
+            @pry_instance.binding_stack.size.should  == 1
+            @pry_instance.binding_stack.first.should == @bindings.first
+          end
+        end
       end
 
       it 'should save prior backtrace in FrameManager instance' do
@@ -213,6 +241,53 @@ describe PryStackExplorer do
         PE.pop_frame_manager(@pry_instance)
         PE.pop_frame_manager(@pry_instance)
         PE.frame_hash.has_key?(@pry_instance).should == false
+      end
+
+      it 'should not change size of binding_stack when popping' do
+        bindings = [bindings, bindings]
+        PE.create_and_push_frame_manager(bindings, @pry_instance)
+        PE.create_and_push_frame_manager(@bindings, @pry_instance)
+        PE.pop_frame_manager(@pry_instance)
+        @pry_instance.binding_stack.size.should == 1
+      end
+
+      it 'should return nil when popping non-existent frame manager' do
+        PE.pop_frame_manager(@pry_instance).should == nil
+      end
+
+      describe "restoring previous binding" do
+        it 'should restore previous binding for Pry instance on pop, where previous binding is not first frame' do
+          bindings = [binding, binding]
+          PE.create_and_push_frame_manager(bindings, @pry_instance).binding_index = 1
+          PE.create_and_push_frame_manager(@bindings, @pry_instance)
+          PE.pop_frame_manager(@pry_instance)
+          @pry_instance.binding_stack.first.should == bindings[1]
+        end
+
+        it 'should restore previous binding for Pry instance on pop (previous frame frame manager)' do
+          bindings = [binding, binding]
+          PE.create_and_push_frame_manager(bindings, @pry_instance)
+          PE.create_and_push_frame_manager(@bindings, @pry_instance)
+          PE.pop_frame_manager(@pry_instance)
+          @pry_instance.binding_stack.first.should == bindings.first
+        end
+
+        it 'should restore previous binding for Pry instance on pop (no previous frame manager)' do
+          b = binding
+          @pry_instance.binding_stack = [b]
+          PE.create_and_push_frame_manager(@bindings, @pry_instance)
+          PE.pop_frame_manager(@pry_instance)
+          @pry_instance.binding_stack.first.should == b
+        end
+
+        it 'should restore previous binding for Pry instance on pop (no previous frame manager AND no empty binding_stack)' do
+          b = binding
+          @pry_instance.binding_stack = [b]
+          PE.create_and_push_frame_manager(@bindings, @pry_instance)
+          @pry_instance.binding_stack.clear
+          PE.pop_frame_manager(@pry_instance)
+          @pry_instance.binding_stack.first.should == b
+        end
       end
 
       describe "_pry_.backtrace" do

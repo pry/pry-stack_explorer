@@ -17,31 +17,6 @@ module PryStackExplorer
       Thread.current[:__pry_frame_managers__] ||= Hash.new { |h, k| h[k] = [] }
     end
 
-    # Create a `Pry::FrameManager` object and push it onto the frame
-    # manager stack for the relevant `_pry_` instance.
-    # @param [Array] bindings The array of bindings (frames)
-    # @param [Pry] _pry_ The Pry instance associated with the frame manager
-    def create_and_push_frame_manager(bindings, _pry_, options={})
-      fm = FrameManager.new(bindings, _pry_)
-      frame_hash[_pry_].push fm
-      refresh_pry_instance(fm, options)
-      fm
-    end
-
-    # Update the Pry instance to operate on the active frame for the
-    # current frame manager.
-    # @param [PryStackExplorer::FrameManager] fm The active frame manager.
-    # @param [Hash] options The options hash.
-    def refresh_pry_instance(fm, options={})
-      options = {
-        :initial_frame => 0
-      }.merge!(options)
-
-      fm.change_frame_to(options[:initial_frame], false)
-    end
-
-    private :refresh_pry_instance
-
     # Return the complete frame manager stack for the Pry instance
     # @param [Pry] _pry_ The Pry instance associated with the frame
     #   managers
@@ -50,14 +25,65 @@ module PryStackExplorer
       frame_hash[_pry_]
     end
 
-    # Delete the currently active frame manager
-    # @param [Pry] _pry_ The Pry instance associated with the frame managers
-    def pop_frame_manager(_pry_)
-      popped = frame_managers(_pry_).pop
-      frame_hash.delete(_pry_) if frame_managers(_pry_).empty?
-      _pry_.backtrace = popped.prior_backtrace
-      popped
+    # Create a `Pry::FrameManager` object and push it onto the frame
+    # manager stack for the relevant `_pry_` instance.
+    # @param [Array] bindings The array of bindings (frames)
+    # @param [Pry] _pry_ The Pry instance associated with the frame manager
+    def create_and_push_frame_manager(bindings, _pry_, options={})
+      fm = FrameManager.new(bindings, _pry_)
+      frame_hash[_pry_].push fm
+      push_helper(fm, options)
+      fm
     end
+
+    # Update the Pry instance to operate on the specified frame for the
+    # current frame manager.
+    # @param [PryStackExplorer::FrameManager] fm The active frame manager.
+    # @param [Hash] options The options hash.
+    def push_helper(fm, options={})
+      options = {
+        :initial_frame => 0
+      }.merge!(options)
+
+      fm.change_frame_to(options[:initial_frame], false)
+    end
+
+    private :push_helper
+
+    # Delete the currently active frame manager
+    # @param [Pry] _pry_ The Pry instance associated with the frame
+    #   managers.
+    # @return [Pry::FrameManager] The popped frame manager.
+    def pop_frame_manager(_pry_)
+      return if frame_managers(_pry_).empty?
+
+      popped_fm = frame_managers(_pry_).pop
+      pop_helper(popped_fm, _pry_)
+      popped_fm
+    end
+
+    # Restore the Pry instance to operate on the previous
+    # binding. Also responsible for restoring Pry instance's backtrace.
+    # @param [Pry::FrameManager] popped_fm The recently popped frame manager.
+    # @param [Pry] _pry_ The Pry instance associated with the frame managers.
+    def pop_helper(popped_fm, _pry_)
+      if frame_managers(_pry_).empty?
+        if _pry_.binding_stack.empty?
+          _pry_.binding_stack.push popped_fm.prior_binding
+        else
+          _pry_.binding_stack[-1] = popped_fm.prior_binding
+        end
+
+        frame_hash.delete(_pry_)
+      else
+        frame_manager(_pry_).refresh_frame(false)
+      end
+
+      # restore backtrace
+      _pry_.backtrace = popped_fm.prior_backtrace
+    end
+
+    private :pop_helper
 
     # Clear the stack of frame managers for the Pry instance
     # @param [Pry] _pry_ The Pry instance associated with the frame managers
