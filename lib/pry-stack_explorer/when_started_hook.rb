@@ -4,7 +4,7 @@ module PryStackExplorer
     def caller_bindings(binding_stack)
       target = binding_stack.last
 
-      if binding.of_caller(7).eval('__method__') == :pry
+      if binding.of_caller(8).eval('__method__') == :pry
         drop_number = 9
       else
         drop_number = 8
