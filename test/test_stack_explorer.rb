@@ -93,14 +93,20 @@ describe PryStackExplorer do
         out.string.should =~ /beta.*?gamma.*?alpha/m
       end
 
-      it 'should raise if custom call stack does not contain bindings or is empty' do
-        redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
-          lambda { Pry.start(binding, :call_stack => [1, 2, 3]) }.should.raise ArgumentError
+      it 'should raise if custom call stack does not contain bindings' do
+        o = OpenStruct.new
+        redirect_pry_io(StringIO.new("self.errors = _pry_.hooks.errors\nexit\n")) do
+          Pry.start(o, :call_stack => [1, 2, 3])
         end
+        o.errors.first.is_a?(ArgumentError).should == true
+      end
 
-        redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
-          lambda { Pry.start(binding, :call_stack => []) }.should.raise ArgumentError
+      it 'should raise if custom call stack is empty' do
+        o = OpenStruct.new
+        redirect_pry_io(StringIO.new("self.errors = _pry_.hooks.errors\nexit\n")) do
+          Pry.start(o, :call_stack => [])
         end
+        o.errors.first.is_a?(ArgumentError).should == true
       end
     end
   end
