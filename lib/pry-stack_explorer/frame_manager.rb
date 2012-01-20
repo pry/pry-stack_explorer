@@ -1,5 +1,8 @@
 module PryStackExplorer
 
+  # This class represents a call-stack. It stores the
+  # frames that make up the stack and is responsible for updating the
+  # associated Pry instance to reflect the active frame. It is fully Enumerable.
   class FrameManager
     include Enumerable
 
