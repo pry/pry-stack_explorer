@@ -38,10 +38,28 @@ module PryStackExplorer
         "#{type} #{desc} #{sig}\n      in #{self_clipped} #{path}"
       end
     end
+
+    def signature_with_owner(meth_obj)
+      if !meth_obj.undefined?
+        args = meth_obj.parameters.inject([]) do |arr, (type, name)|
+          name ||= (type == :block ? 'block' : "arg#{arr.size + 1}")
+          arr << case type
+                 when :req   then name.to_s
+                 when :opt   then "#{name}=?"
+                 when :rest  then "*#{name}"
+                 when :block then "&#{name}"
+                 else '?'
+                 end
+        end
+        "#{meth_obj.name_with_owner}(#{args.join(', ')})"
+      else
+        "#{meth_obj.name_with_owner}(UNKNOWN) (undefined method)"
+      end
+    end
   end
 
   Commands = Pry::CommandSet.new do
-    command_class "up", "Go up to the caller's context. Accepts optional numeric parameter for how many frames to move up." do
+    create_command "up", "Go up to the caller's context. Accepts optional numeric parameter for how many frames to move up." do
       include FrameHelpers
 
       banner <<-BANNER
@@ -62,7 +80,7 @@ module PryStackExplorer
       end
     end
 
-    command_class "down", "Go down to the callee's context. Accepts optional numeric parameter for how many frames to move down." do
+    create_command "down", "Go down to the callee's context. Accepts optional numeric parameter for how many frames to move down." do
       include FrameHelpers
 
       banner <<-BANNER
@@ -87,7 +105,7 @@ module PryStackExplorer
       end
     end
 
-    command_class "show-stack", "Show all frames" do
+    create_command "show-stack", "Show all frames" do
       include FrameHelpers
 
       banner <<-BANNER
@@ -119,30 +137,12 @@ module PryStackExplorer
         end
       end
 
-      private
-      def signature_with_owner(meth_obj)
-        if !meth_obj.undefined?
-          args = meth_obj.parameters.inject([]) do |arr, (type, name)|
-            name ||= (type == :block ? 'block' : "arg#{arr.size + 1}")
-            arr << case type
-                   when :req   then name.to_s
-                   when :opt   then "#{name}=?"
-                   when :rest  then "*#{name}"
-                   when :block then "&#{name}"
-                   else '?'
-                   end
-          end
-          "#{meth_obj.name_with_owner}(#{args.join(', ')})"
-        else
-          "#{meth_obj.name_with_owner}(UNKNOWN) (undefined method)"
-        end
-      end
     end
 
     # TODO: currently using `arg_string` as a work-around for a Slop
     # bug where `-2` (negative number) is interpreted as a
     # non-existent option rather than a non-option
-    command_class "frame", "Switch to a particular frame. Accepts numeric parameter for the target frame to switch to (use with show-stack). Negative frame numbers allowed." do
+    create_command "frame", "Switch to a particular frame. Accepts numeric parameter for the target frame to switch to (use with show-stack). Negative frame numbers allowed." do
       include FrameHelpers
 
       banner <<-BANNER
@@ -157,8 +157,8 @@ module PryStackExplorer
           raise Pry::CommandError, "nowhere to go!"
         else
 
-          if !arg_string.empty?
-            frame_manager.change_frame_to arg_string.to_i
+          if args[0]
+            frame_manager.change_frame_to args[0].to_i
           else
             output.puts "##{frame_manager.binding_index} #{frame_info(target, true)}"
           end

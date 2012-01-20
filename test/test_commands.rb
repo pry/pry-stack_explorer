@@ -88,6 +88,16 @@ describe PryStackExplorer::Commands do
       @o.first_method.should == :bing
     end
 
+    it 'should return info on current frame when given no parameters' do
+      redirect_pry_io(InputTester.new("frame",
+                                      "exit-all"), out=StringIO.new) do
+        @o.bing
+      end
+
+      out.string.should =~ /\#0.*?bang/
+      out.string.should.not =~ /\#1/
+    end
+
     describe "negative indices" do
       it 'should work with negative frame numbers' do
         o = Object.new
