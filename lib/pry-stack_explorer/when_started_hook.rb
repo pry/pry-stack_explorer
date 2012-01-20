@@ -1,9 +1,7 @@
 module PryStackExplorer
   class WhenStartedHook
 
-    def caller_bindings(binding_stack)
-      target = binding_stack.last
-
+    def caller_bindings(target)
       if binding.of_caller(8).eval('__method__') == :pry
         drop_number = 9
       else
@@ -23,7 +21,7 @@ module PryStackExplorer
       bindings
     end
 
-    def call(binding_stack, options, _pry_)
+    def call(target, options, _pry_)
       options = {
         :call_stack    => true,
         :initial_frame => 0
@@ -38,7 +36,7 @@ module PryStackExplorer
           raise ArgumentError, ":call_stack must be an array of bindings"
         end
       else
-        bindings = caller_bindings(binding_stack)
+        bindings = caller_bindings(target)
       end
 
       PryStackExplorer.create_and_push_frame_manager bindings, _pry_, :initial_frame => options[:initial_frame]
