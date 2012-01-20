@@ -15,6 +15,26 @@ module PryStackExplorer
       frame_managers.count > 1 || frame_manager.prior_binding
     end
 
+    # Return a description of the frame (binding).
+    # This is only useful for regular old bindings that have not been
+    # enhanced by `#of_caller`.
+    # @param [Binding] b The binding.
+    # @return [String] A description of the frame (binding).
+    def frame_description(b)
+      b_self = b.eval('self')
+      b_method = b.eval('__method__')
+
+      if b_method && b_method != :__binding__ && b_method != :__binding_impl__
+        b_method.to_s
+      elsif b_self.instance_of?(Module)
+        "<module:#{b_self}>"
+      elsif b_self.instance_of?(Class)
+        "<class:#{b_self}>"
+      else
+        "<main>"
+      end
+    end
+
     # Return a description of the passed binding object. Accepts an
     # optional `verbose` parameter.
     # @param [Binding] b The binding.
@@ -26,7 +46,7 @@ module PryStackExplorer
       meth_obj = Pry::Method.from_binding(b) if meth
 
       type = b.frame_type ? "[#{b.frame_type}]".ljust(9) : ""
-      desc = b.frame_description ? "#{b.frame_description}" : "#{PryStackExplorer.frame_manager(_pry_).frame_info_for(b)}"
+      desc = b.frame_description ? "#{b.frame_description}" : "#{frame_description(b)}"
       sig = meth_obj ? "<#{signature_with_owner(meth_obj)}>" : ""
 
       self_clipped = "#{Pry.view_clip(b_self)}"

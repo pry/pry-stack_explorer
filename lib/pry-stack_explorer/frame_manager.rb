@@ -38,24 +38,6 @@ module PryStackExplorer
       bindings.each(&block)
     end
 
-    # Return a description of the frame (binding)
-    # @param [Binding] b The binding.
-    # @return [String] A description of the frame (binding).
-    def frame_info_for(b)
-      b_self = b.eval('self')
-      b_method = b.eval('__method__')
-
-      if b_method && b_method != :__binding__ && b_method != :__binding_impl__
-        b_method.to_s
-      elsif b_self.instance_of?(Module)
-        "<module:#{b_self}>"
-      elsif b_self.instance_of?(Class)
-        "<class:#{b_self}>"
-      else
-        "<main>"
-      end
-    end
-
     # Ensure the Pry instance's active binding is the frame manager's
     # active binding.
     def refresh_frame(run_whereami=true)
