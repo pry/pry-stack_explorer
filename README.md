@@ -28,7 +28,7 @@ Pry's in-session help for more information on any of these commands.
 
 **How to use:**
 
-After installing pry-coolline just start Pry as normal, the coolline plugin will be detected and used automatically.
+After installing pry-stack_explorer just start Pry as normal (typically via a `binding.pry`), the stack_explorer plugin will be detected and used automatically.
 
 * Install the [gem](https://rubygems.org/gems/pry-stack_explorer): `gem install pry-stack_explorer`
 * Read the [documentation](http://rdoc.info/github/banister/pry-stack_explorer/master/file/README.md)
