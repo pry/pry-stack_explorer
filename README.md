@@ -26,7 +26,9 @@ implementations is planned for the future.
 The `up`, `down`, `frame` and `show-stack` commands are provided. See
 Pry's in-session help for more information on any of these commands.
 
-Please note that this is a first release and may have some teething problems, feel free to file an [issue](https://github.com/banister/pry-stack_explorer) if you encounter any problems.
+**How to use:**
+
+After installing pry-coolline just start Pry as normal, the coolline plugin will be detected and used automatically.
 
 * Install the [gem](https://rubygems.org/gems/pry-stack_explorer): `gem install pry-stack_explorer`
 * Read the [documentation](http://rdoc.info/github/banister/pry-stack_explorer/master/file/README.md)
