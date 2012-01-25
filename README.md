@@ -5,9 +5,10 @@ pry-stack_explorer
 
 _Walk the stack in a Pry session_
 
-**Please note, pry-stack_explorer has not been officially released yet and the prerelease gem that is available is NOT compatible with the current Pry gem (0.9.7.4).
-The prerelease gem only exists for testing purposes among Pry core committers. This gem will be fully available soon, when the next Pry version (0.9.8) is released.**
-
+**Please note, this is a first release for pry-stack_explorer and as
+  such it may still have teething problems. If you encounter any
+  quirks or crashes please [file an
+  issue](https://github.com/pry/pry-stack_explorer/issues) **
 
 pry-stack_explorer is a plugin for the [Pry](http://pry.github.com)
 REPL that enables the user to navigate the call-stack.
@@ -23,13 +24,14 @@ pry-stack_explorer is currently designed to work on MRI and
 Ruby 1.9.2+ (including 1.9.3). Support for other Ruby versions and
 implementations is planned for the future.
 
-The `up`, `down`, `frame` and `show-stack` commands are provided.
+The `up`, `down`, `frame` and `show-stack` commands are provided. See
+Pry's in-session help for more information on any of these commands.
 
 Please note that this is a first release and may have some teething problems, feel free to file an [issue](https://github.com/banister/pry-stack_explorer) if you encounter any problems.
 
 * Install the [gem](https://rubygems.org/gems/pry-stack_explorer): `gem install pry-stack_explorer`
 * Read the [documentation](http://rdoc.info/github/banister/pry-stack_explorer/master/file/README.md)
-* See the [source code](http://github.com/banister/pry-stack_explorer)
+* See the [source code](http://github.com/pry/pry-stack_explorer)
 
 Example: Moving around between frames
 --------
@@ -43,10 +45,10 @@ Showing all accessible frames in stack:
    #1 [block]   block in b <Object#b()>
    #2 [method]  b <Object#b()>
    #3 [method]  alphabet <Object#alphabet(y)>
-   #4 [class]   <class:J> 
-   #5 [block]   block in <main> 
-   #6 [eval]    <main> 
-   #7 [top]     <main> 
+   #4 [class]   <class:J>
+   #5 [block]   block in <main>
+   #6 [eval]    <main>
+   #7 [top]     <main>
 [9] pry(J)> frame 3
 
 Frame number: 3/7
@@ -54,14 +56,14 @@ Frame type: method
 
 From: /Users/john/ruby/projects/pry-stack_explorer/examples/example.rb @ line 10 in Object#alphabet:
 
-     5: 
+     5:
      6: require 'pry-stack_explorer'
-     7: 
+     7:
      8: def alphabet(y)
      9:   x = 20
  => 10:   b
     11: end
-    12: 
+    12:
     13: def b
     14:   x = 30
     15:   proc {
@@ -81,11 +83,11 @@ From: /Users/john/ruby/projects/pry-stack_explorer/examples/example2.rb @ line 1
     10:   beta
     11:   puts x
     12: end
-    13: 
+    13:
     14: def beta
  => 15:   binding.pry
     16: end
-    17: 
+    17:
     18: alpha
 [1] pry(main)> show-stack
 
@@ -93,8 +95,8 @@ Showing all accessible frames in stack:
 --
 => #0 [method]  beta <Object#beta()>
    #1 [method]  alpha <Object#alpha()>
-   #2 [eval]    <main> 
-   #3 [top]     <main> 
+   #2 [eval]    <main>
+   #3 [top]     <main>
 [2] pry(main)> up
 
 Frame number: 1/3
@@ -102,15 +104,15 @@ Frame type: method
 
 From: /Users/john/ruby/projects/pry-stack_explorer/examples/example2.rb @ line 10 in Object#alpha:
 
-     5: 
-     6: 
-     7: 
+     5:
+     6:
+     7:
      8: def alpha
      9:   x = "hello"
  => 10:   beta
     11:   puts x
     12: end
-    13: 
+    13:
     14: def beta
     15:   binding.pry
 [3] pry(main)> x = "goodbye"
