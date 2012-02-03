@@ -159,17 +159,17 @@ module PryStackExplorer
 
     end
 
-    # TODO: currently using `arg_string` as a work-around for a Slop
-    # bug where `-2` (negative number) is interpreted as a
-    # non-existent option rather than a non-option
     create_command "frame", "Switch to a particular frame. Accepts numeric parameter for the target frame to switch to (use with show-stack). Negative frame numbers allowed." do
       include FrameHelpers
 
       banner <<-BANNER
         Usage: frame [OPTIONS]
           Switch to a particular frame. Accepts numeric parameter for the target frame to switch to (use with show-stack). Negative frame numbers allowed.
-          e.g: frame 4
-          e.g: frame -2
+          When given no parameter show information about the current frame.
+
+          e.g: frame 4   #=> jump to the 4th frame
+          e.g: frame -2  #=> jump to the second-to-last frame
+          e.g: frame     #=> show information info about current frame
       BANNER
 
       def process
