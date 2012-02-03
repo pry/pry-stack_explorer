@@ -28,7 +28,7 @@ module PryStackExplorer
       bindings = bindings.drop(start_frame_index + 1)
 
       bindings = bindings.drop(1) if bindings.first.eval("__method__") == :pry
-      bindings = bindings.drop(1) if bindings.first.eval("self.class.name") == "PryNav::Tracer" && bindings.first.eval("__method__") == :tracer
+      bindings = bindings.drop_while { |b| b.eval("self.inspect") =~ /PryNav/ }
 
       # Use the binding returned by #of_caller if possible (as we get
       # access to frame_type).
