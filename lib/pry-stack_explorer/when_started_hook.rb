@@ -2,13 +2,33 @@ module PryStackExplorer
   class WhenStartedHook
 
     def caller_bindings(target)
-      if binding.of_caller(8).eval('__method__') == :pry
-        drop_number = 9
-      else
-        drop_number = 8
+      bindings = binding.callers
+
+      start_frames = bindings.each_with_index.select do |b, i|
+        b.frame_type == :method &&
+          b.eval("self") == Pry &&
+          b.eval("__method__") == :start
       end
 
-      bindings = binding.callers.drop(drop_number)
+      is_nested_session = false
+
+      start_frame_index = start_frames.first.last
+
+      if start_frames.size >= 2
+        idx1, idx2 = start_frames.take(2).map(&:last)
+
+        is_nested_session = bindings[idx1..idx2].detect do |b|
+          b.eval("__method__") == :re &&
+            b.eval("self.class") == Pry
+        end
+
+        start_frame_index = idx2 if !is_nested_session
+      end
+
+      bindings = bindings.drop(start_frame_index + 1)
+
+      bindings = bindings.drop(1) if bindings.first.eval("__method__") == :pry
+      bindings = bindings.drop(1) if bindings.first.eval("self.class.name") == "PryNav::Tracer" && bindings.first.eval("__method__") == :tracer
 
       # Use the binding returned by #of_caller if possible (as we get
       # access to frame_type).
