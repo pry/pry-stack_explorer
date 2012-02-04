@@ -28,6 +28,34 @@ describe PryStackExplorer do
         @o.frame.should == :bang
       end
 
+      it 'should begin at correct frame even if Pry.start is monkey-patched (only works with one monkey-patch currently)' do
+        class << Pry
+          alias_method :old_start, :start
+
+          def start(*args, &block)
+            old_start(*args, &block)
+          end
+        end
+
+        o = Object.new
+        class << o; attr_reader :frames; end
+        def o.bing() bong end
+        def o.bong() bang end
+        def o.bang() Pry.start(binding) end
+
+        redirect_pry_io(InputTester.new(
+                                        "@frames = SE.frame_manager(_pry_).bindings.take(3)",
+                                        "exit-all")) do
+          o.bing
+        end
+
+        o.frames.map { |f| f.eval("__method__") }.should == [:bang, :bong, :bing]
+
+        class << Pry
+          alias_method :start, :old_start
+        end
+      end
+
       it 'should begin session at specified frame' do
         o = Object.new
         class << o; attr_reader :frame; end

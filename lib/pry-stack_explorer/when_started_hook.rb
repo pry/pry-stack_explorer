@@ -10,8 +10,6 @@ module PryStackExplorer
           b.eval("__method__") == :start
       end
 
-      is_nested_session = false
-
       start_frame_index = start_frames.first.last
 
       if start_frames.size >= 2
