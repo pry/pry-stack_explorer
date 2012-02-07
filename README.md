@@ -34,11 +34,6 @@ After installing `pry-stack_explorer`, just start Pry as normal (typically via a
 * Read the [documentation](http://rdoc.info/github/banister/pry-stack_explorer/master/file/README.md)
 * See the [source code](http://github.com/pry/pry-stack_explorer)
 
-**Caveats:**
-
-Does not yet play nicely with [pry-nav](https://github.com/nixme/pry-nav) plugin. It is not recommend to use them both 
-at the same time. Compatibility with `pry-nav` will be provided soon.
-
 Example: Moving around between frames
 --------
 
