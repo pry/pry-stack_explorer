@@ -218,11 +218,11 @@ module PryStackExplorer
 
       banner <<-BANNER
         Usage: frame [OPTIONS]
-          Switch to a particular frame. Accepts numeric parameter (or method name) for the target frame to switch to (use with show-stack).
+          Switch to a particular frame. Accepts numeric parameter (or regex for method name) for the target frame to switch to (use with show-stack).
           Negative frame numbers allowed. When given no parameter show information about the current frame.
 
           e.g: frame 4         #=> jump to the 4th frame
-          e.g: frame my_method #=> jump to nearest parent stack frame that matches `my_method`
+          e.g: frame meth      #=> jump to nearest parent stack frame whose method matches /meth/ regex, i.e `my_method`
           e.g: frame -2        #=> jump to the second-to-last frame
           e.g: frame           #=> show information info about current frame
       BANNER
@@ -234,9 +234,9 @@ module PryStackExplorer
 
           if args[0] =~ /\d+/
             frame_manager.change_frame_to args[0].to_i
-          elsif args[0] =~ /\w+/
+          elsif args[0] =~ /^[^-].*$/
             new_frame_index = frame_manager.each_with_index.find_index do |b, i|
-              b.eval("__method__").to_s == args[0] && i > frame_manager.binding_index
+              b.eval("__method__").to_s =~ Regexp.new(args[0]) && i > frame_manager.binding_index
             end
 
             if new_frame_index

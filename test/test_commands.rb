@@ -78,9 +78,9 @@ describe PryStackExplorer::Commands do
   end
 
   describe "frame" do
-    describe "by method name" do
+    describe "by method name regex" do
       it 'should jump to correct stack frame when given method name' do
-        redirect_pry_io(InputTester.new("frame bing",
+        redirect_pry_io(InputTester.new("frame bi",
                                         "@first_method = __method__",
                                         "exit-all"), out=StringIO.new) do
           @o.bing
