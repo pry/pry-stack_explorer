@@ -78,6 +78,29 @@ describe PryStackExplorer::Commands do
   end
 
   describe "frame" do
+    describe "by method name" do
+      it 'should jump to correct stack frame when given method name' do
+        redirect_pry_io(InputTester.new("frame bing",
+                                        "@first_method = __method__",
+                                        "exit-all"), out=StringIO.new) do
+          @o.bing
+        end
+
+        @o.first_method.should == :bing
+      end
+
+      it 'should NOT jump to frames lower down stack when given method name' do
+        redirect_pry_io(InputTester.new("frame -1",
+                                        "frame bang",
+                                        "exit-all"), out=StringIO.new) do
+          @o.bing
+        end
+
+        out.string.should =~ /Error: No parent frame that matches/
+      end
+
+    end
+
     it 'should move to the given frame in the call stack' do
       redirect_pry_io(InputTester.new("frame 2",
                                       "@first_method = __method__",
