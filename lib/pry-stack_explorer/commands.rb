@@ -147,6 +147,7 @@ module PryStackExplorer
         opt.on :v, :verbose, "Include extra information."
         opt.on :H, :head, "Display the first N stack frames (defaults to 10).", :optional => true, :as => Integer, :default => 10
         opt.on :T, :tail, "Display the last N stack frames (defaults to 10).", :optional => true, :as => Integer, :default => 10
+        opt.on :c, :current, "Display N frames either side of current frame (default to 5).", :optional => true, :as => Integer, :default => 5
       end
 
       def memoized_info(index, b, verbose)
@@ -166,6 +167,7 @@ module PryStackExplorer
       def selected_stack_frames
         if opts.present?(:head)
           [0, frame_manager.bindings[0..(opts[:head] - 1)]]
+
         elsif opts.present?(:tail)
           tail = opts[:tail]
           if tail > frame_manager.bindings.size
@@ -173,8 +175,14 @@ module PryStackExplorer
           end
 
           base_frame_index = frame_manager.bindings.size - tail
-          puts base_frame_index
           [base_frame_index, frame_manager.bindings[base_frame_index..-1]]
+
+        elsif opts.present?(:current)
+          first_frame_index = frame_manager.binding_index - (opts[:current])
+          first_frame_index = 0 if first_frame_index < 0
+          last_frame_index = frame_manager.binding_index + (opts[:current])
+          [first_frame_index, frame_manager.bindings[first_frame_index..last_frame_index]]
+
         else
           [0, frame_manager.bindings]
         end
