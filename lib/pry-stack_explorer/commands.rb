@@ -3,14 +3,21 @@ require 'pry'
 module PryStackExplorer
   module FrameHelpers
     private
+
+    # @return [PryStackExplorer::FrameManager] The active frame manager for
+    #   the current `Pry` instance.
     def frame_manager
       PryStackExplorer.frame_manager(_pry_)
     end
 
+    # @return [Array<PryStackExplorer::FrameManager>] All the frame
+    #   managers for the current `Pry` instance.
     def frame_managers
       PryStackExplorer.frame_managers(_pry_)
     end
 
+    # @return [Boolean] Whether there is a context to return to once
+    #   the current `frame_manager` is popped.
     def prior_context_exists?
       frame_managers.count > 1 || frame_manager.prior_binding
     end
@@ -59,6 +66,8 @@ module PryStackExplorer
       end
     end
 
+    # @param [Pry::Method] meth_obj The method object.
+    # @return [String] Signature for the method object in Class#method format.
     def signature_with_owner(meth_obj)
       if !meth_obj.undefined?
         args = meth_obj.parameters.inject([]) do |arr, (type, name)|
@@ -136,27 +145,64 @@ module PryStackExplorer
 
       def options(opt)
         opt.on :v, :verbose, "Include extra information."
+        opt.on :H, :head, "Display the first N stack frames (defaults to 10).", :optional => true, :as => Integer, :default => 10
+        opt.on :T, :tail, "Display the last N stack frames (defaults to 10).", :optional => true, :as => Integer, :default => 10
       end
+
+      def memoized_info(index, b, verbose)
+        frame_manager.user[:frame_info] ||= Hash.new { |h, k| h[k] = [] }
+
+        if verbose
+          frame_manager.user[:frame_info][:v][index]      ||= frame_info(b, verbose)
+        else
+          frame_manager.user[:frame_info][:normal][index] ||= frame_info(b, verbose)
+        end
+      end
+
+      private :memoized_info
+
+      # @return [Array<Fixnum, Array<Binding>>] Return tuple of
+      #   base_frame_index and the array of frames.
+      def selected_stack_frames
+        if opts.present?(:head)
+          [0, frame_manager.bindings[0..(opts[:head] - 1)]]
+        elsif opts.present?(:tail)
+          tail = opts[:tail]
+          if tail > frame_manager.bindings.size
+            tail = frame_manager.bindings.size
+          end
+
+          base_frame_index = frame_manager.bindings.size - tail
+          puts base_frame_index
+          [base_frame_index, frame_manager.bindings[base_frame_index..-1]]
+        else
+          [0, frame_manager.bindings]
+        end
+      end
+
+      private :selected_stack_frames
 
       def process
         if !frame_manager
           output.puts "No caller stack available!"
         else
           content = ""
-          content << "\n#{text.bold('Showing all accessible frames in stack:')}\n--\n"
+          content << "\n#{text.bold("Showing all accessible frames in stack (#{frame_manager.bindings.size} in total):")}\n--\n"
 
-          frame_manager.each_with_index do |b, i|
+          base_frame_index, frames = selected_stack_frames
+          frames.each_with_index do |b, index|
+            i = index + base_frame_index
             if i == frame_manager.binding_index
-              content << "=> ##{i} #{frame_info(b, opts[:v])}\n"
+              content << "=> ##{i} #{memoized_info(i, b, opts[:v])}\n"
             else
-              content << "   ##{i} #{frame_info(b, opts[:v])}\n"
+              content << "   ##{i} #{memoized_info(i, b, opts[:v])}\n"
             end
           end
 
           stagger_output content
         end
-      end
 
+      end
     end
 
     create_command "frame", "Switch to a particular frame. Accepts numeric parameter for the target frame to switch to (use with show-stack). Negative frame numbers allowed." do
