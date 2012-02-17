@@ -45,6 +45,44 @@ describe PryStackExplorer::Commands do
       @o.first_method.should  == :bang
       @o.second_method.should == :bing
     end
+
+    describe "by method name regex" do
+      it 'should move to the method name that matches the regex' do
+        redirect_pry_io(InputTester.new("@first_method = __method__",
+                                        "up bi",
+                                        "@second_method = __method__",
+                                        "exit-all"), out=StringIO.new) do
+          @o.bing
+        end
+
+        @o.first_method.should  == :bang
+        @o.second_method.should == :bing
+      end
+
+      it 'should move through all methods that match regex in order' do
+        redirect_pry_io(InputTester.new("@first_method = __method__",
+                                        "up b",
+                                        "@second_method = __method__",
+                                        "up b",
+                                        "@third_method = __method__",
+                                        "exit-all"), out=StringIO.new) do
+          @o.bing
+        end
+
+        @o.first_method.should  == :bang
+        @o.second_method.should == :bong
+        @o.third_method.should  == :bing
+      end
+
+      it 'should error if it cant find frame to match regex' do
+        redirect_pry_io(InputTester.new("up conrad_irwin",
+                                        "exit-all"), out=StringIO.new) do
+          @o.bing
+        end
+
+        out.string.should =~ /Error: No frame that matches/
+      end
+    end
   end
 
   describe "down" do
@@ -75,6 +113,46 @@ describe PryStackExplorer::Commands do
       @o.first_method.should  == :bing
       @o.second_method.should == :bang
     end
+
+    describe "by method name regex" do
+      it 'should move to the method name that matches the regex' do
+        redirect_pry_io(InputTester.new("frame -1",
+                                        "down bo",
+                                        "@first_method = __method__",
+                                        "exit-all"), out=StringIO.new) do
+          @o.bing
+        end
+
+        @o.first_method.should == :bong
+      end
+
+      it 'should move through all methods that match regex in order' do
+        redirect_pry_io(InputTester.new("frame bing",
+                                        "@first_method = __method__",
+                                        "down b",
+                                        "@second_method = __method__",
+                                        "down b",
+                                        "@third_method = __method__",
+                                        "exit-all"), out=StringIO.new) do
+          @o.bing
+        end
+
+        @o.first_method.should  == :bing
+        @o.second_method.should == :bong
+        @o.third_method.should  == :bang
+      end
+
+      it 'should error if it cant find frame to match regex' do
+        redirect_pry_io(InputTester.new("frame -1",
+                                        "down conrad_irwin",
+                                        "exit-all"), out=StringIO.new) do
+          @o.bing
+        end
+
+        out.string.should =~ /Error: No frame that matches/
+      end
+    end
+
   end
 
   describe "frame" do
@@ -96,7 +174,7 @@ describe PryStackExplorer::Commands do
           @o.bing
         end
 
-        out.string.should =~ /Error: No parent frame that matches/
+        out.string.should =~ /Error: No frame that matches/
       end
 
     end

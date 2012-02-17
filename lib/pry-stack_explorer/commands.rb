@@ -85,50 +85,118 @@ module PryStackExplorer
         "#{meth_obj.name_with_owner}(UNKNOWN) (undefined method)"
       end
     end
+
+    #  Regexp.new(args[0])
+    def find_frame_by_regex(regex, up_or_down)
+      start_index = frame_manager.binding_index
+
+      if up_or_down == :down
+        enum = frame_manager.bindings[0..start_index - 1].reverse_each
+      else
+        enum = frame_manager.bindings[start_index + 1..-1]
+      end
+
+      new_frame = enum.find do |b|
+        b.eval("__method__").to_s =~ regex
+      end
+
+      frame_index = frame_manager.bindings.index(new_frame)
+
+      if frame_index
+        frame_index
+      else
+        raise Pry::CommandError, "No frame that matches #{regex.source} found!"
+      end
+    end
   end
 
   Commands = Pry::CommandSet.new do
-    create_command "up", "Go up to the caller's context. Accepts optional numeric parameter for how many frames to move up." do
+    create_command "up", "Go up to the caller's context." do
       include FrameHelpers
 
       banner <<-BANNER
         Usage: up [OPTIONS]
           Go up to the caller's context. Accepts optional numeric parameter for how many frames to move up.
-          e.g: up
-          e.g: up 3
+          Also accepts a string (regex) instead of numeric; for jumping to nearest parent method frame which matches the regex.
+          e.g: up      #=> Move up 1 stack frame.
+          e.g: up 3    #=> Move up 2 stack frames.
+          e.g: up meth #=> Jump to nearest parent stack frame whose method matches /meth/ regex, i.e `my_method`.
       BANNER
 
       def process
-        inc = args.first.nil? ? 1 : args.first.to_i
+        inc = args.first.nil? ? "1" : args.first
 
         if !frame_manager
           raise Pry::CommandError, "Nowhere to go!"
         else
-          frame_manager.change_frame_to frame_manager.binding_index + inc
+          if inc =~ /\d+/
+            frame_manager.change_frame_to frame_manager.binding_index + inc.to_i
+          elsif inc =~ /^[^-].*$/
+            new_frame_index = find_frame_by_regex(Regexp.new(inc), :up)
+            frame_manager.change_frame_to new_frame_index
+          end
         end
       end
     end
 
-    create_command "down", "Go down to the callee's context. Accepts optional numeric parameter for how many frames to move down." do
+    create_command "down", "Go down to the callee's context." do
       include FrameHelpers
 
       banner <<-BANNER
         Usage: down [OPTIONS]
           Go down to the callee's context. Accepts optional numeric parameter for how many frames to move down.
-          e.g: down
-          e.g: down 3
+          Also accepts a string (regex) instead of numeric; for jumping to nearest child method frame which matches the regex.
+          e.g: down      #=> Move down 1 stack frame.
+          e.g: down 3    #=> Move down 2 stack frames.
+          e.g: down meth #=> ump to nearest child stack frame whose method matches /meth/ regex, i.e `my_method`.
       BANNER
 
       def process
-        inc = args.first.nil? ? 1 : args.first.to_i
+        inc = args.first.nil? ? "1" : args.first
 
         if !frame_manager
           raise Pry::CommandError, "Nowhere to go!"
         else
-          if frame_manager.binding_index - inc < 0
-            raise Pry::CommandError, "At bottom of stack, cannot go further!"
+          if inc =~ /\d+/
+            if frame_manager.binding_index - inc.to_i < 0
+              raise Pry::CommandError, "At bottom of stack, cannot go further!"
+            else
+              frame_manager.change_frame_to frame_manager.binding_index - inc.to_i
+            end
+          elsif inc =~ /^[^-].*$/
+            new_frame_index = find_frame_by_regex(Regexp.new(inc), :down)
+            frame_manager.change_frame_to new_frame_index
+          end
+        end
+      end
+    end
+
+    create_command "frame", "Switch to a particular frame." do
+      include FrameHelpers
+
+      banner <<-BANNER
+        Usage: frame [OPTIONS]
+          Switch to a particular frame. Accepts numeric parameter (or regex for method name) for the target frame to switch to (use with show-stack).
+          Negative frame numbers allowed. When given no parameter show information about the current frame.
+
+          e.g: frame 4         #=> jump to the 4th frame
+          e.g: frame meth      #=> jump to nearest parent stack frame whose method matches /meth/ regex, i.e `my_method`
+          e.g: frame -2        #=> jump to the second-to-last frame
+          e.g: frame           #=> show information info about current frame
+      BANNER
+
+      def process
+        if !frame_manager
+          raise Pry::CommandError, "nowhere to go!"
+        else
+
+          if args[0] =~ /\d+/
+            frame_manager.change_frame_to args[0].to_i
+          elsif args[0] =~ /^[^-].*$/
+            new_frame_index = find_frame_by_regex(Regexp.new(args[0]), :up)
+            frame_manager.change_frame_to new_frame_index
           else
-            frame_manager.change_frame_to frame_manager.binding_index - inc
+            output.puts "##{frame_manager.binding_index} #{frame_info(target, true)}"
           end
         end
       end
@@ -210,45 +278,6 @@ module PryStackExplorer
           stagger_output content
         end
 
-      end
-    end
-
-    create_command "frame", "Switch to a particular frame. Accepts numeric parameter for the target frame to switch to (use with show-stack). Negative frame numbers allowed." do
-      include FrameHelpers
-
-      banner <<-BANNER
-        Usage: frame [OPTIONS]
-          Switch to a particular frame. Accepts numeric parameter (or regex for method name) for the target frame to switch to (use with show-stack).
-          Negative frame numbers allowed. When given no parameter show information about the current frame.
-
-          e.g: frame 4         #=> jump to the 4th frame
-          e.g: frame meth      #=> jump to nearest parent stack frame whose method matches /meth/ regex, i.e `my_method`
-          e.g: frame -2        #=> jump to the second-to-last frame
-          e.g: frame           #=> show information info about current frame
-      BANNER
-
-      def process
-        if !frame_manager
-          raise Pry::CommandError, "nowhere to go!"
-        else
-
-          if args[0] =~ /\d+/
-            frame_manager.change_frame_to args[0].to_i
-          elsif args[0] =~ /^[^-].*$/
-            new_frame_index = frame_manager.each_with_index.find_index do |b, i|
-              b.eval("__method__").to_s =~ Regexp.new(args[0]) && i > frame_manager.binding_index
-            end
-
-            if new_frame_index
-              frame_manager.change_frame_to new_frame_index
-            else
-              raise Pry::CommandError, "No parent frame that matches #{args[0]} found!"
-            end
-
-          else
-            output.puts "##{frame_manager.binding_index} #{frame_info(target, true)}"
-          end
-        end
       end
     end
   end
