@@ -5,10 +5,6 @@ pry-stack_explorer
 
 _Walk the stack in a Pry session_
 
-**Please note, this is a first release for `pry-stack_explorer` and as
-  such it may still have teething problems. If you encounter any
-  quirks or crashes please [file an issue](https://github.com/pry/pry-stack_explorer/issues)**
-
 pry-stack_explorer is a plugin for the [Pry](http://pry.github.com)
 REPL that enables the user to navigate the call-stack.
 
