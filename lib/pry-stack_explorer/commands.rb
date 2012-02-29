@@ -148,7 +148,7 @@ module PryStackExplorer
           Also accepts a string (regex) instead of numeric; for jumping to nearest child method frame which matches the regex.
           e.g: down      #=> Move down 1 stack frame.
           e.g: down 3    #=> Move down 2 stack frames.
-          e.g: down meth #=> ump to nearest child stack frame whose method matches /meth/ regex, i.e `my_method`.
+          e.g: down meth #=> Jump to nearest child stack frame whose method matches /meth/ regex, i.e `my_method`.
       BANNER
 
       def process

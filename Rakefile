@@ -26,7 +26,7 @@ def apply_spec_defaults(s)
   s.add_dependency("pry","~>0.9.8.2")
   s.add_development_dependency("bacon","~>1.1.0")
   s.add_development_dependency('rake', '~> 0.9')
-  s.required_ruby_version = '>= 1.9.2'
+#  s.required_ruby_version = '>= 1.9.2'
   s.homepage = "https://github.com/banister"
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")
@@ -34,12 +34,12 @@ end
 
 desc "run pry with plugin enabled"
 task :pry do
-  exec("pry -I#{direc}/lib/ -r #{direc}/lib/#{PROJECT_NAME}")
+  exec("pry -rubygems -I#{direc}/lib/ -r #{direc}/lib/#{PROJECT_NAME}")
 end
 
 desc "Run example"
 task :example do
-  sh "ruby -I#{direc}/lib/ #{direc}/examples/example.rb "
+  sh "ruby -rubygems -I#{direc}/lib/ #{direc}/examples/example.rb "
 end
 
 desc "Run example2"
