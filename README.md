@@ -15,7 +15,7 @@ Unlike `ruby-debug`, pry-stack_explorer incurs no runtime cost and
 enables navigation right up the call-stack to the birth of the
 program.
 
-pry-stack_explorer is currently designed to work on **MRI and
+pry-stack_explorer is currently designed to work on **Rubinius and MRI
 Ruby 1.9.2+ (including 1.9.3)**. Support for other Ruby versions and
 implementations is planned for the future.
 
@@ -126,7 +126,7 @@ Limitations
 -------------------------
 
 * First release, so may have teething problems.
-* Limited to MRI 1.9.2+ at this stage.
+* Limited to Rubinius, and MRI 1.9.2+ at this stage.
 
 Contact
 -------
