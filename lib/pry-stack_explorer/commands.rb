@@ -88,6 +88,33 @@ module PryStackExplorer
 
     #  Regexp.new(args[0])
     def find_frame_by_regex(regex, up_or_down)
+      frame_index = find_frame_by_block(up_or_down) do |b|
+        b.eval("__method__").to_s =~ regex
+      end
+
+      if frame_index
+        frame_index
+      else
+        raise Pry::CommandError, "No frame that matches #{regex.source} found!"
+      end 
+    end
+
+    def find_frame_by_object_regex(class_regex, method_regex, up_or_down)
+      frame_index = find_frame_by_block(up_or_down) do |b|
+        class_match = b.eval("self.class").to_s =~ class_regex
+        meth_match = b.eval("__method__").to_s =~ method_regex
+        
+        class_match && meth_match
+      end
+
+      if frame_index
+        frame_index
+      else
+        raise Pry::CommandError, "No frame that matches #{class_regex.source}" + '#' + "#{method_regex.source} found!"
+      end 
+    end
+
+    def find_frame_by_block(up_or_down)
       start_index = frame_manager.binding_index
 
       if up_or_down == :down
@@ -97,18 +124,13 @@ module PryStackExplorer
       end
 
       new_frame = enum.find do |b|
-        b.eval("__method__").to_s =~ regex
+        yield(b)
       end
 
       frame_index = frame_manager.bindings.index(new_frame)
-
-      if frame_index
-        frame_index
-      else
-        raise Pry::CommandError, "No frame that matches #{regex.source} found!"
-      end
     end
   end
+
 
   Commands = Pry::CommandSet.new do
     create_command "up", "Go up to the caller's context." do
@@ -131,6 +153,9 @@ module PryStackExplorer
         else
           if inc =~ /\d+/
             frame_manager.change_frame_to frame_manager.binding_index + inc.to_i
+          elsif match = /^([A-Z]+[^#.]*)(#|\.)(.+)$/.match(inc)
+            new_frame_index = find_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :up)
+            frame_manager.change_frame_to new_frame_index
           elsif inc =~ /^[^-].*$/
             new_frame_index = find_frame_by_regex(Regexp.new(inc), :up)
             frame_manager.change_frame_to new_frame_index
@@ -163,6 +188,9 @@ module PryStackExplorer
             else
               frame_manager.change_frame_to frame_manager.binding_index - inc.to_i
             end
+          elsif match = /^([A-Z]+[^#.]*)(#|\.)(.+)$/.match(inc)
+            new_frame_index = find_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :down)
+            frame_manager.change_frame_to new_frame_index 
           elsif inc =~ /^[^-].*$/
             new_frame_index = find_frame_by_regex(Regexp.new(inc), :down)
             frame_manager.change_frame_to new_frame_index
@@ -192,6 +220,9 @@ module PryStackExplorer
 
           if args[0] =~ /\d+/
             frame_manager.change_frame_to args[0].to_i
+          elsif match = /^([A-Z]+[^#.]*)(#|\.)(.+)$/.match(args[0])
+            new_frame_index = find_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :up)
+            frame_manager.change_frame_to new_frame_index 
           elsif args[0] =~ /^[^-].*$/
             new_frame_index = find_frame_by_regex(Regexp.new(args[0]), :up)
             frame_manager.change_frame_to new_frame_index
@@ -277,8 +308,8 @@ module PryStackExplorer
 
           stagger_output content
         end
-
       end
+      
     end
   end
 end
