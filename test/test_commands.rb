@@ -1,5 +1,39 @@
 require 'helper'
 
+
+class Top
+  attr_accessor :method_list, :middle
+  def initialize method_list
+    @method_list = method_list
+  end
+  def bing
+    @middle = Middle.new method_list
+    @middle.bong
+  end
+end
+
+class Middle
+  attr_accessor :method_list, :bottom
+  def initialize method_list
+    @method_list = method_list
+  end
+  def bong
+    @bottom = Bottom.new method_list
+    @bottom.bang
+  end
+end
+
+class Bottom
+  attr_accessor :method_list
+  def initialize method_list
+    @method_list = method_list
+  end
+  def bang
+    Pry.start(binding)
+  end
+end
+
+
 describe PryStackExplorer::Commands do
 
   before do
@@ -11,6 +45,9 @@ describe PryStackExplorer::Commands do
     def @o.bing() bong end
     def @o.bong() bang end
     def @o.bang() Pry.start(binding) end
+
+    method_list = []
+    @top = Top.new method_list
   end
 
   after do
@@ -83,6 +120,65 @@ describe PryStackExplorer::Commands do
         out.string.should =~ /Error: No frame that matches/
       end
     end
+
+
+    describe 'by Class regex' do
+      it 'should move to the Class#method that matches the regex' do
+        redirect_pry_io(InputTester.new("@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        'up Middle#bong',
+                                        "@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        "exit-all"), out=StringIO.new) do
+          @top.bing
+        end
+
+        @top.method_list.should  == ['Bottom#bang', 'Middle#bong']
+      end
+
+      it 'should allow Class only syntax' do
+          redirect_pry_io(InputTester.new("@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        'up Middle',
+                                        "@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        "exit-all"), out=StringIO.new) do
+          @top.bing
+        end
+
+        @top.method_list.should == ['Bottom#bang', 'Middle#bong']
+
+      end
+
+      it 'should allow partial class names' do
+          redirect_pry_io(InputTester.new("@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        'up Mid#bong',
+                                        "@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        "exit-all"), out=StringIO.new) do
+          @top.bing
+        end
+
+        @top.method_list.should  == ['Bottom#bang', 'Middle#bong']
+
+      end
+
+      it 'should allow partial method names' do
+          redirect_pry_io(InputTester.new("@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        'up Middle#bo',
+                                        "@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        "exit-all"), out=StringIO.new) do
+          @top.bing
+        end
+
+        @top.method_list.should  == ['Bottom#bang', 'Middle#bong']
+
+      end
+
+      it 'should error if it cant find frame to match regex' do
+        redirect_pry_io(InputTester.new('up Conrad#irwin',
+                                        "exit-all"), out=StringIO.new) do
+          @top.bing
+        end
+
+        out.string.should =~ /Error: No frame that matches/
+      end
+    end
   end
 
   describe "down" do
@@ -147,6 +243,41 @@ describe PryStackExplorer::Commands do
                                         "down conrad_irwin",
                                         "exit-all"), out=StringIO.new) do
           @o.bing
+        end
+
+        out.string.should =~ /Error: No frame that matches/
+      end
+    end
+
+    describe 'by Class#method name regex' do
+      it 'should move to the method and class that matches the regex' do
+        redirect_pry_io(InputTester.new('frame Top#bing',
+                                        "@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        'down Middle#bong',
+                                        "@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        "exit-all"), out=StringIO.new) do
+          @top.bing
+        end
+
+        @top.method_list.should == ['Top#bing', 'Middle#bong']
+      end
+
+      it 'should allow Class only syntax' do
+        redirect_pry_io(InputTester.new('frame Top#bing',
+                                        "@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        'down Middle',
+                                        "@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        "exit-all"), out=StringIO.new) do
+          @top.bing
+        end
+
+        @top.method_list.should == ['Top#bing', 'Middle#bong']
+      end
+
+      it 'should error if it cant find frame to match regex' do
+        redirect_pry_io(InputTester.new('down Conrad#irwin',
+                                        "exit-all"), out=StringIO.new) do
+          @top.bing
         end
 
         out.string.should =~ /Error: No frame that matches/
