@@ -122,8 +122,8 @@ describe PryStackExplorer::Commands do
     end
 
 
-    describe 'by Class#method name regex' do
-      it 'should move to the method and class that matches the regex' do
+    describe 'by Class regex' do
+      it 'should move to the Class#method that matches the regex' do
         redirect_pry_io(InputTester.new("@method_list << self.class.to_s + '#' + __method__.to_s",
                                         'up Middle#bong',
                                         "@method_list << self.class.to_s + '#' + __method__.to_s",
@@ -134,10 +134,17 @@ describe PryStackExplorer::Commands do
         @top.method_list.should  == ['Bottom#bang', 'Middle#bong']
       end
 
-      ### ????? ###
-      # it 'should be case sensitive' do
-      # end
-      ### ????? ###
+      it 'should allow Class only syntax' do
+          redirect_pry_io(InputTester.new("@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        'up Middle',
+                                        "@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        "exit-all"), out=StringIO.new) do
+          @top.bing
+        end
+
+        @top.method_list.should == ['Bottom#bang', 'Middle#bong']
+
+      end
 
       it 'should allow partial class names' do
           redirect_pry_io(InputTester.new("@method_list << self.class.to_s + '#' + __method__.to_s",
@@ -255,10 +262,17 @@ describe PryStackExplorer::Commands do
         @top.method_list.should == ['Top#bing', 'Middle#bong']
       end
 
-      ### ????? ###
-      # it 'should be case sensitive' do
-      # end
-      ### ????? ###
+      it 'should allow Class only syntax' do
+        redirect_pry_io(InputTester.new('frame Top#bing',
+                                        "@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        'down Middle',
+                                        "@method_list << self.class.to_s + '#' + __method__.to_s",
+                                        "exit-all"), out=StringIO.new) do
+          @top.bing
+        end
+
+        @top.method_list.should == ['Top#bing', 'Middle#bong']
+      end
 
       it 'should error if it cant find frame to match regex' do
         redirect_pry_io(InputTester.new('down Conrad#irwin',
