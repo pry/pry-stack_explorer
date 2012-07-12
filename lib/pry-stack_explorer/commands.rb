@@ -1,5 +1,3 @@
-require 'pry'
-
 module PryStackExplorer
   module FrameHelpers
     private
@@ -96,14 +94,14 @@ module PryStackExplorer
         frame_index
       else
         raise Pry::CommandError, "No frame that matches #{regex.source} found!"
-      end 
+      end
     end
 
     def find_frame_by_object_regex(class_regex, method_regex, up_or_down)
       frame_index = find_frame_by_block(up_or_down) do |b|
         class_match = b.eval("self.class").to_s =~ class_regex
         meth_match = b.eval("__method__").to_s =~ method_regex
-        
+
         class_match && meth_match
       end
 
@@ -111,7 +109,7 @@ module PryStackExplorer
         frame_index
       else
         raise Pry::CommandError, "No frame that matches #{class_regex.source}" + '#' + "#{method_regex.source} found!"
-      end 
+      end
     end
 
     def find_frame_by_block(up_or_down)
@@ -190,7 +188,7 @@ module PryStackExplorer
             end
           elsif match = /^([A-Z]+[^#.]*)(#|\.)(.+)$/.match(inc)
             new_frame_index = find_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :down)
-            frame_manager.change_frame_to new_frame_index 
+            frame_manager.change_frame_to new_frame_index
           elsif inc =~ /^[^-].*$/
             new_frame_index = find_frame_by_regex(Regexp.new(inc), :down)
             frame_manager.change_frame_to new_frame_index
@@ -222,7 +220,7 @@ module PryStackExplorer
             frame_manager.change_frame_to args[0].to_i
           elsif match = /^([A-Z]+[^#.]*)(#|\.)(.+)$/.match(args[0])
             new_frame_index = find_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :up)
-            frame_manager.change_frame_to new_frame_index 
+            frame_manager.change_frame_to new_frame_index
           elsif args[0] =~ /^[^-].*$/
             new_frame_index = find_frame_by_regex(Regexp.new(args[0]), :up)
             frame_manager.change_frame_to new_frame_index
@@ -309,7 +307,7 @@ module PryStackExplorer
           stagger_output content
         end
       end
-      
+
     end
   end
 end

@@ -5,7 +5,6 @@ require "pry-stack_explorer/version"
 require "pry-stack_explorer/commands"
 require "pry-stack_explorer/frame_manager"
 require "pry-stack_explorer/when_started_hook"
-require "pry"
 require "binding_of_caller"
 
 module PryStackExplorer

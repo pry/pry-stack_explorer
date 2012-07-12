@@ -47,6 +47,11 @@ task :example2 do
   sh "ruby -I#{direc}/lib/ #{direc}/examples/example2.rb "
 end
 
+desc "Run example3"
+task :example3 do
+  sh "ruby -I#{direc}/lib/ #{direc}/examples/example3.rb "
+end
+
 desc "Show version"
 task :version do
   puts "PryStackExplorer version: #{PryStackExplorer::VERSION}"
