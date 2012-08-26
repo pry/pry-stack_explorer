@@ -231,11 +231,11 @@ module PryStackExplorer
       end
     end
 
-    create_command "show-stack", "Show all frames" do
+    create_command "stack", "Show all frames" do
       include FrameHelpers
 
       banner <<-BANNER
-        Usage: show-stack [OPTIONS]
+        Usage: stack [OPTIONS]
           Show all accessible stack frames.
           e.g: show-stack -v
       BANNER
@@ -295,7 +295,7 @@ module PryStackExplorer
           content << "\n#{text.bold("Showing all accessible frames in stack (#{frame_manager.bindings.size} in total):")}\n--\n"
 
           base_frame_index, frames = selected_stack_frames
-          frames.each_with_index do |b, index|
+          frames.each_with_index.to_a.reverse.each do |b, index|
             i = index + base_frame_index
             if i == frame_manager.binding_index
               content << "=> ##{i} #{memoized_info(i, b, opts[:v])}\n"
@@ -309,5 +309,8 @@ module PryStackExplorer
       end
 
     end
+
+    alias_command "show-stack", "stack"
+
   end
 end
