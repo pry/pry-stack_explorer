@@ -22,10 +22,9 @@ def apply_spec_defaults(s)
   s.email = 'jrmair@gmail.com'
   s.description = s.summary
   s.require_path = 'lib'
-  s.add_dependency("binding_of_caller","~>0.6.2")
+  s.add_dependency("binding_of_caller","~>0.6.8")
   s.add_development_dependency("bacon","~>1.1.0")
   s.add_development_dependency('rake', '~> 0.9')
-#  s.required_ruby_version = '>= 1.9.2'
   s.homepage = "https://github.com/banister"
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")
