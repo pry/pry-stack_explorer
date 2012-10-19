@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<binding_of_caller>, ["~> 0.6.8"])
       s.add_development_dependency(%q<bacon>, ["~> 1.1.0"])
       s.add_development_dependency(%q<rake>, ["~> 0.9"])
+      s.add_development_dependency(%q<pry>)
     else
       s.add_dependency(%q<binding_of_caller>, ["~> 0.6.8"])
       s.add_dependency(%q<bacon>, ["~> 1.1.0"])

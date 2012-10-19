@@ -1,6 +1,7 @@
 # pry-stack_explorer.rb
 # (C) John Mair (banisterfiend); MIT license
 
+require "pry"
 require "pry-stack_explorer/version"
 require "pry-stack_explorer/commands"
 require "pry-stack_explorer/frame_manager"

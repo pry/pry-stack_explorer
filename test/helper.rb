@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'ostruct'
-require 'pry'
 
 unless Object.const_defined? 'PryStackExplorer'
   $:.unshift File.expand_path '../../lib', __FILE__
