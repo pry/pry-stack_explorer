@@ -6,7 +6,7 @@ direc = File.dirname(__FILE__)
 PROJECT_NAME = "pry-stack_explorer"
 
 require 'rake/clean'
-require 'rake/gempackagetask'
+require 'rubygems/package_task'
 require "#{PROJECT_NAME}/version"
 
 CLOBBER.include("**/*~", "**/*#*", "**/*.log")
@@ -72,7 +72,7 @@ namespace :ruby do
     s.platform = Gem::Platform::RUBY
   end
 
-  Rake::GemPackageTask.new(spec) do |pkg|
+  Gem::PackageTask.new(spec) do |pkg|
     pkg.need_zip = false
     pkg.need_tar = false
   end
@@ -97,6 +97,8 @@ task :reinstall => :gems do
   sh "gem install #{direc}/pkg/#{PROJECT_NAME}-#{PryStackExplorer::VERSION}.gem"
 end
 
+task :install => :reinstall
+
 desc "build and push latest gems"
 task :pushgems => :gems do
   chdir("#{File.dirname(__FILE__)}/pkg") do
@@ -105,5 +107,3 @@ task :pushgems => :gems do
     end
   end
 end
-
-
