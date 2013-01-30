@@ -25,7 +25,7 @@ def apply_spec_defaults(s)
   s.add_dependency("binding_of_caller","~>0.6.8")
   s.add_development_dependency("bacon","~>1.1.0")
   s.add_development_dependency('rake', '~> 0.9')
-  s.homepage = "https://github.com/banister"
+  s.homepage = "https://github.com/pry/pry-stack_explorer"
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")
 end
@@ -107,3 +107,5 @@ task :pushgems => :gems do
     end
   end
 end
+
+task :pushgem => :pushgems

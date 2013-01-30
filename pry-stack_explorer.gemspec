@@ -2,9 +2,9 @@
 
 Gem::Specification.new do |s|
   s.name = "pry-stack_explorer"
-  s.version = "0.4.7"
+  s.version = "0.4.8pre1"
 
-  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["John Mair (banisterfiend)"]
   s.date = "2013-01-30"
   s.description = "Walk the stack in a Pry session"
