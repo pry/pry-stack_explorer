@@ -1,13 +1,14 @@
 module PryStackExplorer
   class WhenStartedHook
+    include Pry::Helpers::BaseHelpers
 
     def caller_bindings(target)
       bindings = binding.callers
 
       start_frames = bindings.each_with_index.select do |b, i|
         b.frame_type == :method &&
-          b.eval("self") == Pry &&
-          b.eval("__method__") == :start
+          safe_send(b.eval("self"), :equal?, Pry) &&
+          safe_send(b.eval("__method__"), :==, :start)
       end
 
       start_frame_index = start_frames.first.last
@@ -16,21 +17,21 @@ module PryStackExplorer
         idx1, idx2 = start_frames.take(2).map(&:last)
 
         is_nested_session = bindings[idx1..idx2].detect do |b|
-          b.eval("__method__") == :re &&
-            b.eval("self.class") == Pry
+          safe_send(b.eval("__method__"), :==, :re) &&
+            safe_send(b.eval("self.class"), :equal?, Pry)
         end
 
         start_frame_index = idx2 if !is_nested_session
       end
 
       bindings = bindings.drop(start_frame_index + 1)
-
-      bindings = bindings.drop(1) if bindings.first.eval("__method__") == :pry
-      bindings = bindings.drop_while { |b| b.eval("self.inspect") =~ /PryNav/ }
+      bindings = bindings.drop_while { |b| b.eval("__FILE__") =~ /pry-(?:nav|debugger)/ }
+      bindings = bindings.drop(1) if safe_send(bindings.first.eval("__method__"), :==, :pry)
 
       # Use the binding returned by #of_caller if possible (as we get
       # access to frame_type).
       # Otherwise stick to the given binding (target).
+
       if !PryStackExplorer.bindings_equal?(target, bindings.first)
         bindings.shift
         bindings.unshift(target)
