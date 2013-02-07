@@ -23,6 +23,7 @@ def apply_spec_defaults(s)
   s.description = s.summary
   s.require_path = 'lib'
   s.add_dependency("binding_of_caller","~>0.6.8")
+  s.add_dependency("pry","~>0.9.11")
   s.add_development_dependency("bacon","~>1.1.0")
   s.add_development_dependency('rake', '~> 0.9')
   s.homepage = "https://github.com/pry/pry-stack_explorer"
@@ -94,7 +95,7 @@ task :rmgems => ["ruby:clobber_package"]
 desc "reinstall gem"
 task :reinstall => :gems do
   sh "gem uninstall pry-stack_explorer" rescue nil
-  sh "gem install #{direc}/pkg/#{PROJECT_NAME}-#{PryStackExplorer::VERSION}.gem"
+  sh "gem install -l #{direc}/pkg/#{PROJECT_NAME}-#{PryStackExplorer::VERSION}.gem"
 end
 
 task :install => :reinstall
