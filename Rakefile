@@ -22,7 +22,7 @@ def apply_spec_defaults(s)
   s.email = 'jrmair@gmail.com'
   s.description = s.summary
   s.require_path = 'lib'
-  s.add_dependency("binding_of_caller","~>0.6.8")
+  s.add_dependency("binding_of_caller",">= 0.7")
   s.add_dependency("pry","~>0.9.11")
   s.add_development_dependency("bacon","~>1.1.0")
   s.add_development_dependency('rake', '~> 0.9')
