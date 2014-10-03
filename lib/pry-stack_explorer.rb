@@ -9,9 +9,6 @@ require "binding_of_caller"
 
 module PryStackExplorer
 
-  # short-hand for `PryStackExplorer`
-  ::SE = self
-
   class << self
     # @return [Hash] The hash storing all frames for all Pry instances for
     #   the current thread.
