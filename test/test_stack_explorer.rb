@@ -84,6 +84,19 @@ describe PryStackExplorer do
         o.frame.should == :beta
       end
 
+      # regression test for #12
+      it 'does not infinite loop when pry is started in MyObject#==' do
+        o = Object.new
+        def o.==(other)
+          binding.pry
+        end
+
+        redirect_pry_io(InputTester.new(":hello", "exit-all"), out=StringIO.new) do
+          o.==(1)
+        end
+
+        out.string.should =~ /hello/
+      end
     end
 
     describe ":call_stack option" do
@@ -375,7 +388,6 @@ describe PryStackExplorer do
           p1.backtrace.should == "my backtrace1"
         end
       end
-
     end
   end
 end

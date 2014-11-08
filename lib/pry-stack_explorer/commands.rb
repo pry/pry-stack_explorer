@@ -242,9 +242,9 @@ module PryStackExplorer
 
       def options(opt)
         opt.on :v, :verbose, "Include extra information."
-        opt.on :H, :head, "Display the first N stack frames (defaults to 10).", :optional => true, :as => Integer, :default => 10
-        opt.on :T, :tail, "Display the last N stack frames (defaults to 10).", :optional => true, :as => Integer, :default => 10
-        opt.on :c, :current, "Display N frames either side of current frame (default to 5).", :optional => true, :as => Integer, :default => 5
+        opt.on :H, :head, "Display the first N stack frames (defaults to 10).", :optional_argument => true, :as => Integer, :default => 10
+        opt.on :T, :tail, "Display the last N stack frames (defaults to 10).", :optional_argument => true, :as => Integer, :default => 10
+        opt.on :c, :current, "Display N frames either side of current frame (default to 5).", :optional_argument => true, :as => Integer, :default => 5
       end
 
       def memoized_info(index, b, verbose)

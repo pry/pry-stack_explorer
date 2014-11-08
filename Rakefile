@@ -6,7 +6,7 @@ direc = File.dirname(__FILE__)
 PROJECT_NAME = "pry-stack_explorer"
 
 require 'rake/clean'
-require 'rake/gempackagetask'
+require 'rubygems/package_task'
 require "#{PROJECT_NAME}/version"
 
 CLOBBER.include("**/*~", "**/*#*", "**/*.log")
@@ -22,11 +22,11 @@ def apply_spec_defaults(s)
   s.email = 'jrmair@gmail.com'
   s.description = s.summary
   s.require_path = 'lib'
-  s.add_dependency("binding_of_caller","~>0.6.2")
+  s.add_dependency("binding_of_caller",">= 0.7")
+  s.add_dependency("pry",">=0.9.11")
   s.add_development_dependency("bacon","~>1.1.0")
   s.add_development_dependency('rake', '~> 0.9')
-#  s.required_ruby_version = '>= 1.9.2'
-  s.homepage = "https://github.com/banister"
+  s.homepage = "https://github.com/pry/pry-stack_explorer"
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")
 end
@@ -73,7 +73,7 @@ namespace :ruby do
     s.platform = Gem::Platform::RUBY
   end
 
-  Rake::GemPackageTask.new(spec) do |pkg|
+  Gem::PackageTask.new(spec) do |pkg|
     pkg.need_zip = false
     pkg.need_tar = false
   end
@@ -95,8 +95,10 @@ task :rmgems => ["ruby:clobber_package"]
 desc "reinstall gem"
 task :reinstall => :gems do
   sh "gem uninstall pry-stack_explorer" rescue nil
-  sh "gem install #{direc}/pkg/#{PROJECT_NAME}-#{PryStackExplorer::VERSION}.gem"
+  sh "gem install -l #{direc}/pkg/#{PROJECT_NAME}-#{PryStackExplorer::VERSION}.gem"
 end
+
+task :install => :reinstall
 
 desc "build and push latest gems"
 task :pushgems => :gems do
@@ -107,4 +109,4 @@ task :pushgems => :gems do
   end
 end
 
-
+task :pushgem => :pushgems
