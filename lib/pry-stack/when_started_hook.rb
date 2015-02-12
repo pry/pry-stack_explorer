@@ -1,4 +1,4 @@
-module PryStackExplorer
+module PryStack
   class WhenStartedHook
     include Pry::Helpers::BaseHelpers
 
@@ -12,7 +12,7 @@ module PryStackExplorer
       # Use the binding returned by #of_caller if possible (as we get
       # access to frame_type).
       # Otherwise stick to the given binding (target).
-      if !PryStackExplorer.bindings_equal?(target, bindings.first)
+      if !PryStack.bindings_equal?(target, bindings.first)
         bindings.shift
         bindings.unshift(target)
       end
@@ -38,7 +38,7 @@ module PryStackExplorer
         bindings = caller_bindings(target)
       end
 
-      PryStackExplorer.create_and_push_frame_manager bindings, _pry_, :initial_frame => options[:initial_frame]
+      PryStack.create_and_push_frame_manager bindings, _pry_, :initial_frame => options[:initial_frame]
     end
 
     private

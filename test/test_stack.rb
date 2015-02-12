@@ -1,6 +1,6 @@
 require 'helper'
 
-describe PryStackExplorer do
+describe PryStack do
 
   describe "Pry.start" do
     before do
@@ -152,7 +152,7 @@ describe PryStackExplorer do
     end
   end
 
-  describe "unit tests for PryStackExplorer class methods" do
+  describe "unit tests for PryStack class methods" do
     before do
       @pry_instance = Pry.new
       @bindings = [binding, binding]
@@ -162,7 +162,7 @@ describe PryStackExplorer do
       PE.clear_frame_managers(@pry_instance)
     end
 
-    describe "PryStackExplorer.create_and_push_frame_manager" do
+    describe "PryStack.create_and_push_frame_manager" do
 
       it  "should create and push one new FrameManager" do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
@@ -179,8 +179,8 @@ describe PryStackExplorer do
       it 'should save prior binding in FrameManager instance' do
         _pry_ = Pry.new
         _pry_.binding_stack.push(b=binding)
-        PryStackExplorer.create_and_push_frame_manager(@bindings, _pry_)
-        PryStackExplorer.frame_manager(_pry_).prior_binding.should == b
+        PryStack.create_and_push_frame_manager(@bindings, _pry_)
+        PryStack.frame_manager(_pry_).prior_binding.should == b
       end
 
       describe ":initial_frame option" do
@@ -208,8 +208,8 @@ describe PryStackExplorer do
       it 'should save prior backtrace in FrameManager instance' do
         _pry_ = Pry.new
         _pry_.backtrace = ["my backtrace"]
-        PryStackExplorer.create_and_push_frame_manager(@bindings, _pry_)
-        PryStackExplorer.frame_manager(_pry_).prior_backtrace.should == _pry_.backtrace
+        PryStack.create_and_push_frame_manager(@bindings, _pry_)
+        PryStack.frame_manager(_pry_).prior_backtrace.should == _pry_.backtrace
       end
 
       it  "should create and push multiple FrameManagers" do
@@ -228,7 +228,7 @@ describe PryStackExplorer do
       end
     end
 
-    describe "PryStackExplorer.frame_manager" do
+    describe "PryStack.frame_manager" do
       it  "should have the correct bindings" do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.frame_manager(@pry_instance).bindings.should == @bindings
@@ -251,7 +251,7 @@ describe PryStackExplorer do
       end
     end
 
-    describe "PryStackExplorer.pop_frame_manager" do
+    describe "PryStack.pop_frame_manager" do
       it "should remove FrameManager from stack" do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
@@ -349,7 +349,7 @@ describe PryStackExplorer do
       end
     end
 
-    describe "PryStackExplorer.clear_frame_managers" do
+    describe "PryStack.clear_frame_managers" do
       it "should clear all FrameManagers for a Pry instance" do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(@bindings, @pry_instance)

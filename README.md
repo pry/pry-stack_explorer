@@ -1,21 +1,21 @@
-pry-stack_explorer
+pry-stack
 ===========
 
 (C) John Mair (banisterfiend) 2011
 
 _Walk the stack in a Pry session_
 
-pry-stack_explorer is a plugin for the [Pry](http://pry.github.com)
+pry-stack is a plugin for the [Pry](http://pry.github.com)
 REPL that enables the user to navigate the call-stack.
 
 From the point a Pry session is started, the user can move up the stack
 through parent frames, examine state, and even evaluate code.
 
-Unlike `ruby-debug`, pry-stack_explorer incurs no runtime cost and
+Unlike `ruby-debug`, pry-stack incurs no runtime cost and
 enables navigation right up the call-stack to the birth of the
 program.
 
-pry-stack_explorer is currently designed to work on **Rubinius and MRI
+pry-stack is currently designed to work on **Rubinius and MRI
 Ruby 1.9.2+ (including 1.9.3)**. Support for other Ruby versions and
 implementations is planned for the future.
 
@@ -24,12 +24,12 @@ Pry's in-session help for more information on any of these commands.
 
 **How to use:**
 
-After installing `pry-stack_explorer`, just start Pry as normal (typically via a `binding.pry`), the stack_explorer plugin will be detected and used automatically.
+After installing `pry-stack`, just start Pry as normal (typically via a `binding.pry`), the stack plugin will be detected and used automatically.
 
-* Install the [gem](https://rubygems.org/gems/pry-stack_explorer): `gem install pry-stack_explorer`
-* Read the [documentation](http://rdoc.info/github/banister/pry-stack_explorer/master/file/README.md)
-* See the [source code](http://github.com/pry/pry-stack_explorer)
-* See the [wiki](https://github.com/pry/pry-stack_explorer/wiki) for in-depth usage information.
+* Install the [gem](https://rubygems.org/gems/pry-stack): `gem install pry-stack`
+* Read the [documentation](http://rdoc.info/github/epitron/pry-stack/master/file/README.md)
+* See the [source code](http://github.com/epitron/pry-stack)
+* See the [wiki](https://github.com/epitron/pry-stack/wiki) for in-depth usage information.
 
 Example: Moving around between frames
 --------
@@ -52,10 +52,10 @@ Showing all accessible frames in stack:
 Frame number: 3/7
 Frame type: method
 
-From: /Users/john/ruby/projects/pry-stack_explorer/examples/example.rb @ line 10 in Object#alphabet:
+From: /Users/john/ruby/projects/pry-stack/examples/example.rb @ line 10 in Object#alphabet:
 
      5:
-     6: require 'pry-stack_explorer'
+     6: require 'pry-stack'
      7:
      8: def alphabet(y)
      9:   x = 20
@@ -76,7 +76,7 @@ Example: Modifying state in a caller
 Frame number: 0/3
 Frame type: method
 
-From: /Users/john/ruby/projects/pry-stack_explorer/examples/example2.rb @ line 15 in Object#beta:
+From: /Users/john/ruby/projects/pry-stack/examples/example2.rb @ line 15 in Object#beta:
 
     10:   beta
     11:   puts x
@@ -100,7 +100,7 @@ Showing all accessible frames in stack:
 Frame number: 1/3
 Frame type: method
 
-From: /Users/john/ruby/projects/pry-stack_explorer/examples/example2.rb @ line 10 in Object#alpha:
+From: /Users/john/ruby/projects/pry-stack/examples/example2.rb @ line 10 in Object#alpha:
 
      5:
      6:
@@ -131,7 +131,7 @@ Limitations
 Contact
 -------
 
-Problems or questions contact me at [github](http://github.com/banister)
+Problems or questions contact me at [github](http://github.com/epitron)
 
 
 License
@@ -139,6 +139,7 @@ License
 
 (The MIT License)
 
+Copyright (c) 2014 Chris Gahan (epitron)
 Copyright (c) 2011 John Mair (banisterfiend)
 
 Permission is hereby granted, free of charge, to any person obtaining

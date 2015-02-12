@@ -3,7 +3,7 @@ $:.unshift 'lib'
 dlext = RbConfig::CONFIG['DLEXT']
 direc = File.dirname(__FILE__)
 
-PROJECT_NAME = "pry-stack_explorer"
+PROJECT_NAME = "pry-stack"
 
 require 'rake/clean'
 require 'rubygems/package_task'
@@ -16,7 +16,7 @@ CLEAN.include("**/*#*", "**/*#*.*", "**/*_flymake*.*", "**/*_flymake",
 def apply_spec_defaults(s)
   s.name = PROJECT_NAME
   s.summary = "Walk the stack in a Pry session"
-  s.version = PryStackExplorer::VERSION
+  s.version = PryStack::VERSION
   s.date = Time.now.strftime '%Y-%m-%d'
   s.author = "John Mair (banisterfiend)"
   s.email = 'jrmair@gmail.com'
@@ -26,7 +26,7 @@ def apply_spec_defaults(s)
   s.add_dependency("pry",">=0.9.11")
   s.add_development_dependency("bacon","~>1.1.0")
   s.add_development_dependency('rake', '~> 0.9')
-  s.homepage = "https://github.com/pry/pry-stack_explorer"
+  s.homepage = "https://github.com/epitron/pry-stack"
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")
 end
@@ -53,7 +53,7 @@ end
 
 desc "Show version"
 task :version do
-  puts "PryStackExplorer version: #{PryStackExplorer::VERSION}"
+  puts "PryStack version: #{PryStack::VERSION}"
 end
 
 desc "run tests"
@@ -94,8 +94,8 @@ task :rmgems => ["ruby:clobber_package"]
 
 desc "reinstall gem"
 task :reinstall => :gems do
-  sh "gem uninstall pry-stack_explorer" rescue nil
-  sh "gem install -l #{direc}/pkg/#{PROJECT_NAME}-#{PryStackExplorer::VERSION}.gem"
+  sh "gem uninstall pry-stack" rescue nil
+  sh "gem install -l #{direc}/pkg/#{PROJECT_NAME}-#{PryStack::VERSION}.gem"
 end
 
 task :install => :reinstall

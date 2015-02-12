@@ -1,17 +1,17 @@
-module PryStackExplorer
+module PryStack
   module FrameHelpers
     private
 
-    # @return [PryStackExplorer::FrameManager] The active frame manager for
+    # @return [PryStack::FrameManager] The active frame manager for
     #   the current `Pry` instance.
     def frame_manager
-      PryStackExplorer.frame_manager(_pry_)
+      PryStack.frame_manager(_pry_)
     end
 
-    # @return [Array<PryStackExplorer::FrameManager>] All the frame
+    # @return [Array<PryStack::FrameManager>] All the frame
     #   managers for the current `Pry` instance.
     def frame_managers
-      PryStackExplorer.frame_managers(_pry_)
+      PryStack.frame_managers(_pry_)
     end
 
     # @return [Boolean] Whether there is a context to return to once

@@ -1,4 +1,4 @@
-module PryStackExplorer
+module PryStack
 
   # This class represents a call-stack. It stores the
   # frames that make up the stack and is responsible for updating the
