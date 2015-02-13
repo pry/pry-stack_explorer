@@ -15,30 +15,16 @@ Gem::Specification.new do |s|
   s.licenses    = ["MIT"]
 
   s.files            = `git ls`.lines.map(&:strip)
-  s.extra_rdoc_files = %w[README.md CHANGELOG]
+  s.extra_rdoc_files = ["README.md", "CHANGELOG"]
   s.require_paths    = ["lib"]
 
-  s.rubygems_version = "2.0.3"
+  s.rubygems_version = "2.4.5"
 
   s.test_files = ["test/helper.rb", "test/test_commands.rb", "test/test_frame_manager.rb", "test/test_stack.rb"]
-  if s.respond_to? :specification_version then
-    s.specification_version = 4
 
-    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<binding_of_caller>, [">= 0.7"])
-      s.add_runtime_dependency(%q<pry>, [">= 0.9.11"])
-      s.add_development_dependency(%q<bacon>, ["~> 1.1.0"])
-      s.add_development_dependency(%q<rake>, ["~> 0.9"])
-    else
-      s.add_dependency(%q<binding_of_caller>, [">= 0.7"])
-      s.add_dependency(%q<pry>, [">= 0.9.11"])
-      s.add_dependency(%q<bacon>, ["~> 1.1.0"])
-      s.add_dependency(%q<rake>, ["~> 0.9"])
-    end
-  else
-    s.add_dependency(%q<binding_of_caller>, [">= 0.7"])
-    s.add_dependency(%q<pry>, [">= 0.9.11"])
-    s.add_dependency(%q<bacon>, ["~> 1.1.0"])
-    s.add_dependency(%q<rake>, ["~> 0.9"])
-  end
+  s.specification_version = 4
+  s.add_dependency("binding_of_caller", "~> 0.7")
+  s.add_dependency("pry", ["~> 0.9", ">= 0.9.11"])
+  s.add_development_dependency("bacon", "~> 1.1")
+  s.add_development_dependency("rake", "~> 0.9")
 end
