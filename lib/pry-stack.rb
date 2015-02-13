@@ -1,7 +1,6 @@
 # pry-stack.rb
 # (C) John Mair (banisterfiend); MIT license
 
-require "pry-stack/version"
 require "pry-stack/commands"
 require "pry-stack/frame_manager"
 require "pry-stack/when_started_hook"
