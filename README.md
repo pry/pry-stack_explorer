@@ -17,7 +17,7 @@ License
 
 Copyright (c) 2015 Barry Allard ([steakknife](http://github.com/steakknife))
 Copyright (c) 2014 Chris Gahan ([epitron](http://github.com/epitron))
-Copyright (c) 2011 John Mair ([banisterfiend](http://github.com/banisterfiend))
+Copyright (c) 2011 John Mair ([banisterfiend](http://github.com/banister))
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
