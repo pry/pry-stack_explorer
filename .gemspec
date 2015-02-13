@@ -1,20 +1,23 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = "pry-stack"
-  s.version = "0.4.9.1"
+  s.name    = "pry-stack"
+  s.version = File.read("VERSION").strip
+  s.date    = File.mtime("VERSION").strftime("%Y-%m-%d")
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["John Mair (banisterfiend)", "Chris Gahan (epitron)"]
-  s.email = ["jrmair@gmail.com", "chris@ill-logic.com"]
-  s.date = "2015-02-12"
 
+  s.authors     = ["John Mair (banisterfiend)", "Chris Gahan (epitron)"]
+  s.email       = ["jrmair@gmail.com", "chris@ill-logic.com"]
   s.description = "Walk the stack in Pry, with STYLE."
-  s.summary = "Tired of your 'up' and 'down' commands going in the wrong direction? Longing for a shorter command to show the stack? Are your fingers raw from typing overly long gem names and unnecessary underscores? Then pry-stack is for you!"
+  s.summary     = "Tired of your 'up' and 'down' commands going in the wrong direction? Longing for a shorter command to show the stack? Are your fingers raw from typing overly long gem names and unnecessary underscores? Then pry-stack is for you!"
+  s.homepage    = "https://github.com/epitron/pry-stack"
+  s.licenses    = ["MIT"]
 
-  s.files = [".gemtest", ".gitignore", ".travis.yml", ".yardopts", "CHANGELOG", "Gemfile", "LICENSE", "README.md", "Rakefile", "examples/example.rb", "examples/example2.rb", "examples/example3.rb", "lib/pry-stack_explorer.rb", "lib/pry-stack_explorer/commands.rb", "lib/pry-stack_explorer/frame_manager.rb", "lib/pry-stack_explorer/version.rb", "lib/pry-stack_explorer/when_started_hook.rb", "pry-stack_explorer.gemspec", "test/helper.rb", "test/test_commands.rb", "test/test_frame_manager.rb", "test/test_stack_explorer.rb", "tester.rb"]
-  s.homepage = "https://github.com/epitron/pry-stack"
-  s.require_paths = ["lib"]
+  s.files            = `git ls`.lines.map(&:strip)
+  s.extra_rdoc_files = %w[README.md CHANGELOG]
+  s.require_paths    = ["lib"]
+
   s.rubygems_version = "2.0.3"
 
   s.test_files = ["test/helper.rb", "test/test_commands.rb", "test/test_frame_manager.rb", "test/test_stack_explorer.rb"]
