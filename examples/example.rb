@@ -1,9 +1,9 @@
-unless Object.const_defined? :PryStackExplorer
+unless Object.const_defined? :PryStack
   $:.unshift File.expand_path '../../lib', __FILE__
   require 'pry'
 end
 
-require 'pry-stack_explorer'
+require 'pry-stack'
 
 def alphabet(y)
   x = 20
