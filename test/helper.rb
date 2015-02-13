@@ -2,6 +2,8 @@ require 'rubygems'
 require 'ostruct'
 require 'pry'
 
+PRY_STACK_VERSION = File.read(File.expand_path '../../VERSION', __FILE__)
+
 unless Object.const_defined? 'PryStack'
   $:.unshift File.expand_path '../../lib', __FILE__
   require 'pry-stack'
@@ -9,7 +11,10 @@ end
 
 require 'bacon'
 
-puts "Testing pry-stack version #{PryStack::VERSION}..."
+puts "---------------------------------------------------------"
+puts "Testing"
+puts "---------------------------------------------------------"
+puts "pry-stack version: #{PRY_STACK_VERSION}"
 puts "Ruby version: #{RUBY_VERSION}"
 
 PE = PryStack
