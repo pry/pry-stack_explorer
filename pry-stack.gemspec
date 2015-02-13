@@ -14,8 +14,8 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/epitron/pry-stack"
   s.licenses    = ["MIT"]
 
-  s.files            = `git ls-files`.split("\n")
-  s.test_files       = `git ls-files -- test/*`.split("\n")
+  s.files            = `git ls-files -z`.split("\0")
+  s.test_files       = `git ls-files -z -- test/*`.split("\0")
   s.extra_rdoc_files = ["README.md", "CHANGELOG"]
   s.require_paths    = ["lib"]
 
