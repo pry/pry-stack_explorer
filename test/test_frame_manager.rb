@@ -2,7 +2,7 @@ require 'helper'
 
 Pry.config.output = StringIO.new
 
-describe PryStackExplorer::FrameManager do
+describe PryStack::FrameManager do
 
   before do
     @pry_instance = Pry.new

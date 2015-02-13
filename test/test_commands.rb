@@ -34,7 +34,7 @@ class Bottom
 end
 
 
-describe PryStackExplorer::Commands do
+describe PryStack::Commands do
 
   before do
     Pry.config.hooks.add_hook(:when_started, :save_caller_bindings, WhenStartedHook)
@@ -346,7 +346,7 @@ describe PryStackExplorer::Commands do
         call_stack   = [o.alpha, o.beta, o.gamma]
         (1..3).each_with_index do |v, idx|
           redirect_pry_io(InputTester.new("frame -#{v}",
-                                          "@frame_number = PryStackExplorer.frame_manager(_pry_).binding_index",
+                                          "@frame_number = PryStack.frame_manager(_pry_).binding_index",
                                           "exit-all"), out=StringIO.new) do
             Pry.start(o, :call_stack => call_stack)
           end

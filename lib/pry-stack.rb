@@ -1,16 +1,13 @@
-# pry-stack_explorer.rb
+# pry-stack.rb
 # (C) John Mair (banisterfiend); MIT license
 
-require "pry-stack_explorer/version"
-require "pry-stack_explorer/commands"
-require "pry-stack_explorer/frame_manager"
-require "pry-stack_explorer/when_started_hook"
+require "pry-stack/version"
+require "pry-stack/commands"
+require "pry-stack/frame_manager"
+require "pry-stack/when_started_hook"
 require "binding_of_caller"
 
-module PryStackExplorer
-
-  # short-hand for `PryStackExplorer`
-  ::SE = self
+module PryStack
 
   class << self
     # @return [Hash] The hash storing all frames for all Pry instances for
@@ -40,7 +37,7 @@ module PryStackExplorer
 
     # Update the Pry instance to operate on the specified frame for the
     # current frame manager.
-    # @param [PryStackExplorer::FrameManager] fm The active frame manager.
+    # @param [PryStack::FrameManager] fm The active frame manager.
     # @param [Hash] options The options hash.
     def push_helper(fm, options={})
       options = {
@@ -96,7 +93,7 @@ module PryStackExplorer
 
     alias_method :delete_frame_managers, :clear_frame_managers
 
-    # @return [PryStackExplorer::FrameManager] The currently active frame manager
+    # @return [PryStack::FrameManager] The currently active frame manager
     def frame_manager(_pry_)
       frame_hash[_pry_].last
     end
@@ -115,20 +112,20 @@ module PryStackExplorer
 end
 
 Pry.config.hooks.add_hook(:after_session, :delete_frame_manager) do |_, _, _pry_|
-  PryStackExplorer.clear_frame_managers(_pry_)
+  PryStack.clear_frame_managers(_pry_)
 end
 
-Pry.config.hooks.add_hook(:when_started, :save_caller_bindings, PryStackExplorer::WhenStartedHook.new)
+Pry.config.hooks.add_hook(:when_started, :save_caller_bindings, PryStack::WhenStartedHook.new)
 
-# Import the StackExplorer commands
-Pry.config.commands.import PryStackExplorer::Commands
+# Import the Stack commands
+Pry.config.commands.import PryStack::Commands
 
 # monkey-patch the whereami command to show some frame information,
 # useful for navigating stack.
 Pry.config.commands.before_command("whereami") do |num|
-  if PryStackExplorer.frame_manager(_pry_) && !internal_binding?(target)
-    bindings      = PryStackExplorer.frame_manager(_pry_).bindings
-    binding_index = PryStackExplorer.frame_manager(_pry_).binding_index
+  if PryStack.frame_manager(_pry_) && !internal_binding?(target)
+    bindings      = PryStack.frame_manager(_pry_).bindings
+    binding_index = PryStack.frame_manager(_pry_).binding_index
 
     output.puts "\n"
     output.puts "#{Pry::Helpers::Text.bold('Frame number:')} #{binding_index}/#{bindings.size - 1}"
