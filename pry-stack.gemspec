@@ -14,15 +14,11 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/epitron/pry-stack"
   s.licenses    = ["MIT"]
 
-  s.files            = `git ls`.lines.map(&:strip)
+  s.files            = `git ls-files`.split("\n")
+  s.test_files       = `git ls-files -- test/*`.split("\n")
   s.extra_rdoc_files = ["README.md", "CHANGELOG"]
   s.require_paths    = ["lib"]
 
-  s.rubygems_version = "2.4.5"
-
-  s.test_files = ["test/helper.rb", "test/test_commands.rb", "test/test_frame_manager.rb", "test/test_stack.rb"]
-
-  s.specification_version = 4
   s.add_dependency("binding_of_caller", "~> 0.7")
   s.add_dependency("pry", ["~> 0.9", ">= 0.9.11"])
   s.add_development_dependency("bacon", "~> 1.1")
