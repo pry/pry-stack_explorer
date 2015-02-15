@@ -4,11 +4,14 @@ script:
 rvm:
   - 1.9.2
   - 1.9.3
+  - 2.0.0
+  - 2.1.5
+  - 2.2.0
 
 notifications:
   irc: "irc.freenode.org#pry"
   recipients:
-    - jrmair@gmail.com
+    - chris@ill-logic.com
 
 branches:
   only:
