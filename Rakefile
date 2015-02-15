@@ -3,7 +3,7 @@ gem_name = "pry-stack"
 
 desc "Build the gem"
 task :build do
-  system "gem build .gemspec"
+  system "gem build #{gem_name}.gemspec"
 end
  
 desc "Build and push the gem to rubygems.org"

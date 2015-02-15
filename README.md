@@ -13,10 +13,12 @@ This gem is almost exactly the same as [pry-stack_explorer](http://github.com/pr
 License
 -------
 
-(The MIT License)
+The MIT License
 
 Copyright (c) 2015 Barry Allard ([steakknife](http://github.com/steakknife))
+
 Copyright (c) 2014 Chris Gahan ([epitron](http://github.com/epitron))
+
 Copyright (c) 2011 John Mair ([banisterfiend](http://github.com/banister))
 
 Permission is hereby granted, free of charge, to any person obtaining
