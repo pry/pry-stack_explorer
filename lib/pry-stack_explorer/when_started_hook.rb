@@ -58,9 +58,9 @@ module PryStackExplorer
       bindings.drop(start_frame_index + 1)
     end
 
-    # remove pry-nav / pry-debugger frames
+    # remove pry-nav / pry-debugger / pry-byebug frames
     def remove_debugger_frames(bindings)
-      bindings.drop_while { |b| b.eval("__FILE__") =~ /pry-(?:nav|debugger)/ }
+      bindings.drop_while { |b| b.eval("__FILE__") =~ /pry-(?:nav|debugger|byebug)/ }
     end
 
     # binding.pry frame
