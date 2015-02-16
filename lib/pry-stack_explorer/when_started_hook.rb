@@ -21,6 +21,7 @@ module PryStackExplorer
     end
 
     def call(target, options, _pry_)
+      target ||= _pry_.binding_stack.first if _pry_
       options = {
         :call_stack    => true,
         :initial_frame => 0
