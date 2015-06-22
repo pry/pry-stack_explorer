@@ -106,7 +106,7 @@ module PryStackExplorer
     # @param [Binding] b2 Second binding.
     # @return [Boolean] Whether the `Binding`s are equal.
     def bindings_equal?(b1, b2)
-      b1 && b2 &&
+      !b1.nil? && !b2.nil? &&
         (b1.eval('self').equal?(b2.eval('self'))) &&
         (b1.eval('__method__') == b2.eval('__method__')) &&
         (b1.eval('local_variables').map { |v| b1.eval("#{v}") }.equal?(
