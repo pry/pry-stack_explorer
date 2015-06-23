@@ -109,7 +109,7 @@ module PryStackExplorer
       !b1.nil? && !b2.nil? &&
         (b1.eval('self').equal?(b2.eval('self'))) &&
         (b1.eval('__method__') == b2.eval('__method__')) &&
-        (b1.eval('local_variables').map { |v| b1.eval("#{v}") }.equal?(
+        (b1.eval('local_variables').map { |v| b1.eval("#{v}") }.eql?(
          b2.eval('local_variables').map { |v| b2.eval("#{v}") }))
     end
   end

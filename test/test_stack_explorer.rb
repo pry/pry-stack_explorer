@@ -396,9 +396,7 @@ describe PryStackExplorer do
         PryStackExplorer.bindings_equal?(nil, nil).should == false
         PryStackExplorer.bindings_equal?(nil, b).should == false
         PryStackExplorer.bindings_equal?(b, nil).should == false
-        # puts "\n#{b1} | #{b2} | #{bv1.equal? bv2} | #{bv1.eql? bv2} | #{bv1 == bv2}\n"
-        #⇒ #<Binding:0x000000035b0600> | #<Binding:0x000000035b0600> | false | true | true # WTF?
-        # PryStackExplorer.bindings_equal?(b, b).should == true
+        PryStackExplorer.bindings_equal?(b, b).should == true
       end
     end
   end
