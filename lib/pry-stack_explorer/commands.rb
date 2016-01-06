@@ -125,7 +125,7 @@ module PryStackExplorer
         yield(b)
       end
 
-      frame_index = frame_manager.bindings.index(new_frame)
+      frame_manager.bindings.index(new_frame)
     end
   end
 
