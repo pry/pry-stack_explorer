@@ -1,9 +1,13 @@
 script:
   rake test --trace
 
+before_install:
+  - gem update --system 
+
 rvm:
   - 1.9.2
   - 1.9.3
+  - 2.5.0
 
 notifications:
   irc: "irc.freenode.org#pry"
