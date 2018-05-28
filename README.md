@@ -34,91 +34,12 @@ After installing `pry-stack_explorer`, just start Pry as normal (typically via a
 Example: Moving around between frames
 --------
 
-```
-[8] pry(J)> show-stack
-
-Showing all accessible frames in stack:
---
-=> #0 [method]  c <Object#c()>
-   #1 [block]   block in b <Object#b()>
-   #2 [method]  b <Object#b()>
-   #3 [method]  alphabet <Object#alphabet(y)>
-   #4 [class]   <class:J>
-   #5 [block]   block in <main>
-   #6 [eval]    <main>
-   #7 [top]     <main>
-[9] pry(J)> frame 3
-
-Frame number: 3/7
-Frame type: method
-
-From: /Users/john/ruby/projects/pry-stack_explorer/examples/example.rb @ line 10 in Object#alphabet:
-
-     5:
-     6: require 'pry-stack_explorer'
-     7:
-     8: def alphabet(y)
-     9:   x = 20
- => 10:   b
-    11: end
-    12:
-    13: def b
-    14:   x = 30
-    15:   proc {
-[10] pry(J)> x
-=> 20
-```
+[![asciicast](https://asciinema.org/a/eJnrZNaUhTl12AVtnCG304d0V.png)](https://asciinema.org/a/eJnrZNaUhTl12AVtnCG304d0V)
 
 Example: Modifying state in a caller
 -------
 
-```
-Frame number: 0/3
-Frame type: method
-
-From: /Users/john/ruby/projects/pry-stack_explorer/examples/example2.rb @ line 15 in Object#beta:
-
-    10:   beta
-    11:   puts x
-    12: end
-    13:
-    14: def beta
- => 15:   binding.pry
-    16: end
-    17:
-    18: alpha
-[1] pry(main)> show-stack
-
-Showing all accessible frames in stack:
---
-=> #0 [method]  beta <Object#beta()>
-   #1 [method]  alpha <Object#alpha()>
-   #2 [eval]    <main>
-   #3 [top]     <main>
-[2] pry(main)> up
-
-Frame number: 1/3
-Frame type: method
-
-From: /Users/john/ruby/projects/pry-stack_explorer/examples/example2.rb @ line 10 in Object#alpha:
-
-     5:
-     6:
-     7:
-     8: def alpha
-     9:   x = "hello"
- => 10:   beta
-    11:   puts x
-    12: end
-    13:
-    14: def beta
-    15:   binding.pry
-[3] pry(main)> x = "goodbye"
-=> "goodbye"
-[4] pry(main)> ^D
-
-OUTPUT: goodbye
-```
+[![asciicast](https://asciinema.org/a/0KtCL9HB1bP08wNHLfIeOMa8K.png)](https://asciinema.org/a/0KtCL9HB1bP08wNHLfIeOMa8K)
 
 Output from above is `goodbye` as we changed the `x` local inside the `alpha` (caller) stack frame.
 
