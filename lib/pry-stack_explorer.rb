@@ -126,7 +126,7 @@ Pry.config.commands.import PryStackExplorer::Commands
 
 # monkey-patch the whereami command to show some frame information,
 # useful for navigating stack.
-Pry.config.commands.before_command("whereami") do |num|
+Pry.config.hooks.add_hook(:before_whereami, :stack_explorer) do
   if PryStackExplorer.frame_manager(_pry_) && !internal_binding?(target)
     bindings      = PryStackExplorer.frame_manager(_pry_).bindings
     binding_index = PryStackExplorer.frame_manager(_pry_).binding_index
