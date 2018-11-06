@@ -16,7 +16,7 @@ rvm:
 
 matrix:
   allow_failures:
-    - rmv: ruby-head
+    - rvm: ruby-head
   fast_finish: true
 
 notifications:
