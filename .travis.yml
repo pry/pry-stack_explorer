@@ -1,3 +1,5 @@
+language: ruby
+
 script:
   rake test --trace
 
@@ -16,12 +18,12 @@ rvm:
 
 matrix:
   allow_failures:
-    - rmv: ruby-head
+    - rvm: ruby-head
   fast_finish: true
 
 notifications:
   irc: "irc.freenode.org#pry"
-  recipients:
+  email:
     - jrmair@gmail.com
 
 branches:
