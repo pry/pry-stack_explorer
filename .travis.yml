@@ -23,7 +23,7 @@ matrix:
 
 notifications:
   irc: "irc.freenode.org#pry"
-  recipients:
+  email:
     - jrmair@gmail.com
 
 branches:
