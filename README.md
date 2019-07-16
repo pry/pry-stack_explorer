@@ -31,17 +31,30 @@ After installing `pry-stack_explorer`, just start Pry as normal (typically via a
 * See the [source code](http://github.com/pry/pry-stack_explorer)
 * See the [wiki](https://github.com/pry/pry-stack_explorer/wiki) for in-depth usage information.
 
-Example: Moving around between frames
+Example:
 --------
+Here we run the following ruby script: 
+```Ruby
+require 'pry-stack_explorer'
 
-[![asciicast](https://asciinema.org/a/eJnrZNaUhTl12AVtnCG304d0V.png)](https://asciinema.org/a/eJnrZNaUhTl12AVtnCG304d0V)
+def alpha
+  x = "hello"
+  beta
+  puts x
+end
 
-Example: Modifying state in a caller
--------
+def beta
+  binding.pry
+end
 
-[![asciicast](https://asciinema.org/a/0KtCL9HB1bP08wNHLfIeOMa8K.png)](https://asciinema.org/a/0KtCL9HB1bP08wNHLfIeOMa8K)
+alpha
+```
 
-Output from above is `goodbye` as we changed the `x` local inside the `alpha` (caller) stack frame.
+We wander around the stack a little bit, and modify the state of a frame above the one we `binding.pry`'d at.
+
+[![asciicast](https://asciinema.org/a/257713.svg)](https://asciinema.org/a/257713)
+
+Output from above is `Goodbye` as we changed the `x` local inside the `alpha` (caller) stack frame.
 
 Limitations
 -------------------------
