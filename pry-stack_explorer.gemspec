@@ -4,6 +4,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["John Mair (banisterfiend)"]
+  s.licenses = ["MIT"]
   s.date = Time.now.strftime('%Y-%m-%d')
   s.description = "Walk the stack in a Pry session"
   s.email = "jrmair@gmail.com"
