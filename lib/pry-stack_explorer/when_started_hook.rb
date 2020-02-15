@@ -60,7 +60,10 @@ module PryStackExplorer
 
     # remove pry-nav / pry-debugger / pry-byebug frames
     def remove_debugger_frames(bindings)
-      bindings.drop_while { |b| b.eval("__FILE__") =~ /pry-(?:nav|debugger|byebug)/ }
+      bindings.drop_while do |b|
+        source = RUBY_VERSION >= '2.7.0' ? b.source_location : b.eval("__FILE__")
+        source =~ /pry-(?:nav|debugger|byebug)/
+      end
     end
 
     # binding.pry frame
