@@ -55,7 +55,9 @@ module PryStackExplorer
       sig = meth_obj ? "<#{signature_with_owner(meth_obj)}>" : ""
 
       self_clipped = "#{Pry.view_clip(b_self)}"
-      path = "@ #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
+      path = if RUBY_VERSION >= '2.7.0' then b.source_location.join(':')
+             else "@ #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
+             end
 
       if !verbose
         "#{type} #{desc} #{sig}"
