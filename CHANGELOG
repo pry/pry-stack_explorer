@@ -1,0 +1,4 @@
+## v0.4.10 (X May 2020)
+* Require Ruby 2.6
+* Fix broken `show-stack` in Pry 0.13+
+* Fix Binding.source_location deprecations
