@@ -1,6 +1,8 @@
+require File.expand_path('../lib/pry-stack_explorer/version', __FILE__)
+
 Gem::Specification.new do |s|
   s.name = "pry-stack_explorer"
-  s.version = "0.4.9.3"
+  s.version = PryStackExplorer::VERSION
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0")
   s.authors = ["John Mair (banisterfiend)"]
