@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.specification_version = 4
 
   s.add_runtime_dependency(%q<binding_of_caller>, [">= 0.7"])
-  s.add_runtime_dependency(%q<pry>, [">= 0.9.11"])
+  s.add_runtime_dependency(%q<pry>, [">= 0.12.0"])
   s.add_development_dependency(%q<bacon>, ["~> 1.1.0"])
   s.add_development_dependency(%q<rake>, ["~> 0.9"])
 end
