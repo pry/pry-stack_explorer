@@ -292,7 +292,7 @@ module PryStackExplorer
           output.puts "No caller stack available!"
         else
           content = ""
-          content << "\n#{text.bold("Showing all accessible frames in stack (#{frame_manager.bindings.size} in total):")}\n--\n"
+          content << "\n#{bold("Showing all accessible frames in stack (#{frame_manager.bindings.size} in total):")}\n--\n"
 
           base_frame_index, frames = selected_stack_frames
           frames.each_with_index do |b, index|
