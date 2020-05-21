@@ -33,12 +33,12 @@ end
 
 desc "run pry with plugin enabled"
 task :pry do
-  exec("pry -rubygems -I#{direc}/lib/ -r #{direc}/lib/#{PROJECT_NAME}")
+  exec("pry -I#{direc}/lib/ -r #{direc}/lib/#{PROJECT_NAME}")
 end
 
 desc "Run example"
 task :example do
-  sh "ruby -rubygems -I#{direc}/lib/ #{direc}/examples/example.rb "
+  sh "ruby -I#{direc}/lib/ #{direc}/examples/example.rb "
 end
 
 desc "Run example2"
@@ -61,7 +61,7 @@ task :default => :test
 
 desc "run tests"
 task :test do
-  sh "bacon -Itest -rubygems -a -q"
+  sh "bacon -Itest -a -q"
 end
 
 desc "generate gemspec"
