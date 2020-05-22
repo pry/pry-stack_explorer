@@ -1,9 +1,8 @@
-## v0.5.0 (X May 2020)
+## v0.5.0 (21 May 2020)
 * Should fix most deprecation warnings as of release
 * Require Pry 0.13
 * Fix Pry#_pry_ => #pry_instance deprecation
 
-## v0.4.10 (X May 2020)
-* Require Ruby 2.6
+## v0.4.11 (21 May 2020)
 * Fix broken `show-stack` in Pry 0.13+
 * Fix Binding.source_location deprecations
