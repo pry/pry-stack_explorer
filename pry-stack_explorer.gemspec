@@ -1,8 +1,11 @@
+require File.expand_path('../lib/pry-stack_explorer/version', __FILE__)
+
 Gem::Specification.new do |s|
   s.name = "pry-stack_explorer"
-  s.version = "0.4.9.3"
+  s.version = PryStackExplorer::VERSION
 
-  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.required_ruby_version = ">= 2.6.0"
+
   s.authors = ["John Mair (banisterfiend)"]
   s.date = Time.now.strftime('%Y-%m-%d')
   s.description = "Walk the stack in a Pry session"
@@ -13,24 +16,10 @@ Gem::Specification.new do |s|
   s.summary = "Walk the stack in a Pry session"
   s.test_files = ["test/helper.rb", "test/test_commands.rb", "test/test_frame_manager.rb", "test/test_stack_explorer.rb"]
 
-  if s.respond_to? :specification_version then
-    s.specification_version = 4
+  s.specification_version = 4
 
-    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<binding_of_caller>, [">= 0.7"])
-      s.add_runtime_dependency(%q<pry>, [">= 0.9.11"])
-      s.add_development_dependency(%q<bacon>, ["~> 1.1.0"])
-      s.add_development_dependency(%q<rake>, ["~> 0.9"])
-    else
-      s.add_dependency(%q<binding_of_caller>, [">= 0.7"])
-      s.add_dependency(%q<pry>, [">= 0.9.11"])
-      s.add_dependency(%q<bacon>, ["~> 1.1.0"])
-      s.add_dependency(%q<rake>, ["~> 0.9"])
-    end
-  else
-    s.add_dependency(%q<binding_of_caller>, [">= 0.7"])
-    s.add_dependency(%q<pry>, [">= 0.9.11"])
-    s.add_dependency(%q<bacon>, ["~> 1.1.0"])
-    s.add_dependency(%q<rake>, ["~> 0.9"])
-  end
+  s.add_runtime_dependency(%q<binding_of_caller>, [">= 0.7"])
+  s.add_runtime_dependency(%q<pry>, [">= 0.13.0"])
+  s.add_development_dependency(%q<bacon>, ["~> 1.1.0"])
+  s.add_development_dependency(%q<rake>, ["~> 0.9"])
 end

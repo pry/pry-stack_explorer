@@ -5,13 +5,13 @@ module PryStackExplorer
     # @return [PryStackExplorer::FrameManager] The active frame manager for
     #   the current `Pry` instance.
     def frame_manager
-      PryStackExplorer.frame_manager(_pry_)
+      PryStackExplorer.frame_manager(pry_instance)
     end
 
     # @return [Array<PryStackExplorer::FrameManager>] All the frame
     #   managers for the current `Pry` instance.
     def frame_managers
-      PryStackExplorer.frame_managers(_pry_)
+      PryStackExplorer.frame_managers(pry_instance)
     end
 
     # @return [Boolean] Whether there is a context to return to once
@@ -55,7 +55,7 @@ module PryStackExplorer
       sig = meth_obj ? "<#{signature_with_owner(meth_obj)}>" : ""
 
       self_clipped = "#{Pry.view_clip(b_self)}"
-      path = "@ #{b.eval('__FILE__')}:#{b.eval('__LINE__')}"
+      path = '@ ' + b.source_location.join(':')
 
       if !verbose
         "#{type} #{desc} #{sig}"
@@ -292,7 +292,7 @@ module PryStackExplorer
           output.puts "No caller stack available!"
         else
           content = ""
-          content << "\n#{text.bold("Showing all accessible frames in stack (#{frame_manager.bindings.size} in total):")}\n--\n"
+          content << "\n#{bold("Showing all accessible frames in stack (#{frame_manager.bindings.size} in total):")}\n--\n"
 
           base_frame_index, frames = selected_stack_frames
           frames.each_with_index do |b, index|

@@ -33,7 +33,7 @@ After installing `pry-stack_explorer`, just start Pry as normal (typically via a
 
 Example:
 --------
-Here we run the following ruby script: 
+Here we run the following ruby script:
 ```Ruby
 require 'pry-stack_explorer'
 
@@ -61,6 +61,13 @@ Limitations
 
 * First release, so may have teething problems.
 * Limited to Rubinius, and MRI 1.9.2+ at this stage.
+
+Compatible versions
+-------------------
+* v0.5: Ruby 2.6+, Pry 0.13+
+* v0.4.10: Ruby 2.6+, Pry 0.12+
+* v0.4.9.3: Ruby 2.5 and older
+
 
 Contact
 -------
