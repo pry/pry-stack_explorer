@@ -4,8 +4,7 @@ Gem::Specification.new do |s|
   s.name = "pry-stack_explorer"
   s.version = PryStackExplorer::VERSION
 
-  s.required_ruby_version = ">= 2.6.0"
-
+  s.required_rubygems_version = Gem::Requirement.new(">= 0")
   s.authors = ["John Mair (banisterfiend)"]
   s.email = "jrmair@gmail.com"
 
