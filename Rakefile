@@ -61,7 +61,7 @@ task :default => :test
 
 desc "run tests"
 task :test do
-  sh "bacon -Itest -a -q"
+  sh "rspec"
 end
 
 desc "generate gemspec"

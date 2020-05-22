@@ -1,10 +1,10 @@
 language: ruby
 
 script:
-  rake test --trace
+  rspec --backtrace
 
 before_install:
-  - gem update --system
+  - gem install bundler
 
 rvm:
   - 2.6.6
@@ -18,8 +18,6 @@ matrix:
 
 notifications:
   irc: "irc.freenode.org#pry"
-  email:
-    - jrmair@gmail.com
 
 branches:
   only:

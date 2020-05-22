@@ -1,4 +1,4 @@
-require 'helper'
+require_relative 'test_helper'
 
 Pry.config.output = StringIO.new
 
@@ -62,4 +62,3 @@ describe PryStackExplorer::FrameManager do
   end
 
 end
-

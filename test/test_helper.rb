@@ -1,6 +1,7 @@
-require 'rubygems'
 require 'ostruct'
 require 'pry'
+
+require_relative 'support/input_tester'
 
 unless Object.const_defined? 'PryStackExplorer'
   $:.unshift File.expand_path '../../lib', __FILE__
@@ -16,6 +17,7 @@ PE = PryStackExplorer
 
 class << Pry
   alias_method :orig_reset_defaults, :reset_defaults
+
   def reset_defaults
     orig_reset_defaults
 
@@ -34,52 +36,36 @@ WhenStartedHook  = Pry.config.hooks.get_hook(:when_started, :save_caller_binding
 
 Pry.reset_defaults
 
-class InputTester
-  def initialize(*actions)
-    if actions.last.is_a?(Hash) && actions.last.keys == [:history]
-      @hist = actions.pop[:history]
+module PryTestUtils
+  # Set I/O streams.
+  #
+  # Out defaults to an anonymous StringIO.
+  def redirect_pry_io(new_in, new_out = StringIO.new)
+    old_in = Pry.input
+    old_out = Pry.output
+
+    Pry.input = new_in
+    Pry.output = new_out
+    begin
+      yield
+    ensure
+      Pry.input = old_in
+      Pry.output = old_out
     end
-    @orig_actions = actions.dup
-    @actions = actions
   end
 
-  def readline(*)
-    @actions.shift.tap{ |line| @hist << line if @hist }
-  end
+  def mock_pry(*args)
+    binding = args.first.is_a?(Binding) ? args.shift : binding()
 
-  def rewind
-    @actions = @orig_actions.dup
-  end
-end
+    input = InputTester.new(*args)
+    output = StringIO.new
 
-# Set I/O streams.
-#
-# Out defaults to an anonymous StringIO.
-#
-def redirect_pry_io(new_in, new_out = StringIO.new)
-  old_in = Pry.input
-  old_out = Pry.output
+    redirect_pry_io(input, output) do
+      binding.pry
+    end
 
-  Pry.input = new_in
-  Pry.output = new_out
-  begin
-    yield
-  ensure
-    Pry.input = old_in
-    Pry.output = old_out
+    output.string
   end
 end
 
-def mock_pry(*args)
-
-  binding = args.first.is_a?(Binding) ? args.shift : binding()
-
-  input = InputTester.new(*args)
-  output = StringIO.new
-
-  redirect_pry_io(input, output) do
-    binding.pry
-  end
-
-  output.string
-end
+include PryTestUtils

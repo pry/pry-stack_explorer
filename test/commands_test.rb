@@ -1,5 +1,4 @@
-require 'helper'
-
+require_relative 'test_helper'
 
 class Top
   attr_accessor :method_list, :middle
@@ -34,7 +33,7 @@ class Bottom
 end
 
 
-describe PryStackExplorer::Commands do
+describe "Commands" do
 
   before do
     Pry.config.hooks.add_hook(:when_started, :save_caller_bindings, WhenStartedHook)

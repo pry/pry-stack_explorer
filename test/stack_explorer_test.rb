@@ -1,17 +1,25 @@
-require 'helper'
+require_relative 'test_helper'
 
 describe PryStackExplorer do
 
   describe "Pry.start" do
+
+    # Given class BingBong...
+    class BingBong
+      attr_reader :frames, :frame
+
+      def bing; bong; end
+      def bong; bang; end
+      def bang; Pry.start(binding); end
+    end
+
+    let(:bingbong){ BingBong.new }
+
     before do
       Pry.config.hooks.add_hook(:when_started, :save_caller_bindings, WhenStartedHook)
       Pry.config.hooks.add_hook(:after_session, :delete_frame_manager, AfterSessionHook)
 
-      @o = Object.new
-      class << @o; attr_reader :frame; end
-      def @o.bing() bong end
-      def @o.bong() bang end
-      def @o.bang() Pry.start(binding) end
+      @o = BingBong.new
     end
 
     after do
@@ -22,10 +30,10 @@ describe PryStackExplorer do
     describe ":initial_frame option" do
       it 'should default to first frame when no option provided' do
         redirect_pry_io(StringIO.new("@frame = __method__\nexit\n"), out=StringIO.new) do
-          @o.bing
+          bingbong.bing
         end
 
-        @o.frame.should == :bang
+        bingbong.frame.should == :bang
       end
 
       it 'should begin at correct frame even if Pry.start is monkey-patched (only works with one monkey-patch currently)' do
@@ -37,19 +45,18 @@ describe PryStackExplorer do
           end
         end
 
-        o = Object.new
-        class << o; attr_reader :frames; end
-        def o.bing() bong end
-        def o.bong() bang end
-        def o.bang() Pry.start(binding) end
+        o = BingBong.new
 
-        redirect_pry_io(InputTester.new(
-                                        "@frames = SE.frame_manager(_pry_).bindings.take(3)",
-                                        "exit-all")) do
-          o.bing
-        end
+        redirect_pry_io(
+          InputTester.new(
+            "@frames = SE.frame_manager(pry_instance).bindings.take(3)",
+            "exit-all"
+          )
+        ){ o.bing }
 
-        o.frames.map { |f| f.eval("__method__") }.should == [:bang, :bong, :bing]
+        expect(
+          o.frames.map { |f| f.eval("__method__") }
+        ).to eq([:bang, :bong, :bing])
 
         class << Pry
           alias_method :start, :old_start
@@ -136,7 +143,7 @@ describe PryStackExplorer do
 
       it 'should raise if custom call stack does not contain bindings' do
         o = OpenStruct.new
-        redirect_pry_io(StringIO.new("self.errors = _pry_.hooks.errors\nexit\n")) do
+        redirect_pry_io(StringIO.new("self.errors = pry_instance.hooks.errors\nexit\n")) do
           Pry.start(o, :call_stack => [1, 2, 3])
         end
         o.errors.first.is_a?(ArgumentError).should == true
@@ -144,7 +151,7 @@ describe PryStackExplorer do
 
       it 'should raise if custom call stack is empty' do
         o = OpenStruct.new
-        redirect_pry_io(StringIO.new("self.errors = _pry_.hooks.errors\nexit\n")) do
+        redirect_pry_io(StringIO.new("self.errors = pry_instance.hooks.errors\nexit\n")) do
           Pry.start o, :call_stack => []
         end
         o.errors.first.is_a?(ArgumentError).should == true
@@ -152,7 +159,7 @@ describe PryStackExplorer do
     end
   end
 
-  describe "unit tests for PryStackExplorer class methods" do
+  describe "class methods" do
     before do
       @pry_instance = Pry.new
       @bindings = [binding, binding]
