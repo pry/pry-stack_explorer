@@ -3,7 +3,9 @@ pry-stack_explorer
 
 _Walk the stack in a Pry session_
 
-Note: **Requires Ruby 2.6+ as of version 0.5.0.**
+Ruby versions: **Branch v0.5 requires Ruby 2.6+**. Branch v0.4.11+ will remain for Ruby 2.5 users until its EOL in March 2021.
+
+---
 
 pry-stack_explorer is a plugin for the [Pry](http://pry.github.com)
 REPL that enables the user to navigate the call-stack.
@@ -69,8 +71,8 @@ Output from above is `Goodbye` as we changed the `x` local inside the `alpha` (c
 Compatible versions
 -------------------
 * v0.5: Ruby 2.6+, Pry 0.13+
-* v0.4.10: Ruby 2.6+, Pry 0.12+
-* v0.4.9.3: Ruby 2.5 and older
+* v0.4.11: Ruby 2.5, Pry 0.12+ (branch `works-with-ruby-2-5`)
+* v0.4.9.3: Older versions
 
 
 License
