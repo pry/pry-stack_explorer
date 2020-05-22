@@ -4,5 +4,5 @@
 * Fix Pry#_pry_ => #pry_instance deprecation
 
 ## v0.4.11 (21 May 2020)
-* Fix broken `show-stack` in Pry 0.13+
-* Fix Binding.source_location deprecations
+* Special branch for Ruby 2.5
+* Fix Pry 0.13+ deprecations and broken `show-stack`
