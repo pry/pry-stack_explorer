@@ -47,6 +47,8 @@ module PryStackExplorer
     # remove internal frames related to setting up the session
     def remove_internal_frames(bindings)
       start_frames = internal_frames_with_indices(bindings)
+      return bindings if start_frames.empty?
+
       start_frame_index = start_frames.first.last
 
       if start_frames.size >= 2
