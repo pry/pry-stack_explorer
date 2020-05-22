@@ -8,8 +8,6 @@ unless Object.const_defined? 'PryStackExplorer'
   require 'pry-stack_explorer'
 end
 
-require 'bacon'
-
 puts "Testing pry-stack_explorer version #{PryStackExplorer::VERSION}..."
 puts "Ruby version: #{RUBY_VERSION}"
 
