@@ -7,15 +7,14 @@ Gem::Specification.new do |s|
   s.required_ruby_version = ">= 2.6.0"
 
   s.authors = ["John Mair (banisterfiend)"]
-  s.email = "jrmair@gmail.com"
+  s.email = ["jrmair@gmail.com"]
 
   s.license = "MIT"
 
   s.summary = "Walk the stack in a Pry session"
 
-  s.files = [".gemtest", ".gitignore", ".travis.yml", ".yardopts", "CHANGELOG", "Gemfile", "LICENSE", "README.md", "Rakefile", "examples/example.rb", "examples/example2.rb", "examples/example3.rb", "lib/pry-stack_explorer.rb", "lib/pry-stack_explorer/commands.rb", "lib/pry-stack_explorer/frame_manager.rb", "lib/pry-stack_explorer/version.rb", "lib/pry-stack_explorer/when_started_hook.rb", "pry-stack_explorer.gemspec", "test/helper.rb", "test/test_commands.rb", "test/test_frame_manager.rb", "test/test_stack_explorer.rb", "tester.rb"]
   s.require_paths = ["lib"]
-  s.test_files = ["test/helper.rb", "test/test_commands.rb", "test/test_frame_manager.rb", "test/test_stack_explorer.rb"]
+  s.files = `git ls-files lib *.md LICENSE`.split("\n")
 
   s.homepage = "https://github.com/pry/pry-stack_explorer"
 
