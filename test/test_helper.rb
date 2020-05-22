@@ -3,10 +3,10 @@ require 'pry'
 
 require_relative 'support/input_tester'
 
-unless Object.const_defined? 'PryStackExplorer'
+# unless Object.const_defined? 'PryStackExplorer'
   $:.unshift File.expand_path '../../lib', __FILE__
   require 'pry-stack_explorer'
-end
+# end
 
 puts "Testing pry-stack_explorer version #{PryStackExplorer::VERSION}..."
 puts "Ruby version: #{RUBY_VERSION}"
@@ -63,6 +63,10 @@ module PryTestUtils
     end
 
     output.string
+  end
+
+  def issue_pry_commands(*commands, &block)
+    redirect_pry_io(InputTester.new(*commands), out=StringIO.new, &block)
   end
 end
 

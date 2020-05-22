@@ -1,4 +1,5 @@
 --format documentation
+--color
 --require ./test/test_helper.rb
 --pattern "**{,/*/**}/*_{spec,test}.rb"
 --default-path test

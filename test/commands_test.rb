@@ -65,9 +65,9 @@ describe "Commands" do
         @o.bing
       end
 
-      @o.first_method.should  == :bang
-      @o.second_method.should == :bong
-      @o.third_method.should  == :bing
+      expect(@o.first_method).to eq(:bang)
+      expect(@o.second_method).to eq(:bong)
+      expect(@o.third_method).to eq(:bing)
     end
 
     it 'should move up the call stack two frames at a time' do
@@ -311,17 +311,23 @@ describe "Commands" do
         @o.bing
       end
 
-      out.string.should =~ /\#0.*?bang/
-      out.string.should.not =~ /\#1/
+      expect(out.string).to match(/\#0.*?bang/)
+      expect(out.string).not_to match(/\#1/)
     end
 
     describe "negative indices" do
+      class AlphaBetaGamma
+        attr_accessor :frame, :frame_number
+
+        def alpha; binding; end
+        def beta; binding; end
+        def gamma; binding; end
+      end
+
+      let(:alphabetagamma){ AlphaBetaGamma.new }
+
       it 'should work with negative frame numbers' do
-        o = Object.new
-        class << o; attr_accessor :frame; end
-        def o.alpha() binding end
-        def o.beta()  binding end
-        def o.gamma() binding end
+        o = AlphaBetaGamma.new
 
         call_stack   = [o.alpha, o.beta, o.gamma]
         method_names = call_stack.map { |v| v.eval('__method__') }.reverse
@@ -336,19 +342,17 @@ describe "Commands" do
       end
 
       it 'should convert negative indices to their positive counterparts' do
-        o = Object.new
-        class << o; attr_accessor :frame_number; end
-        def o.alpha() binding end
-        def o.beta()  binding end
-        def o.gamma() binding end
+        o = AlphaBetaGamma.new
 
-        call_stack   = [o.alpha, o.beta, o.gamma]
+        call_stack = [o.alpha, o.beta, o.gamma]
+
         (1..3).each_with_index do |v, idx|
-          redirect_pry_io(InputTester.new("frame -#{v}",
-                                          "@frame_number = PryStackExplorer.frame_manager(_pry_).binding_index",
-                                          "exit-all"), out=StringIO.new) do
-            Pry.start(o, :call_stack => call_stack)
-          end
+          issue_pry_commands(
+            "frame -#{v}",
+            "@frame_number = PryStackExplorer.frame_manager(pry_instance).binding_index",
+            "exit-all"
+          ){ Pry.start(o, call_stack: call_stack) }
+
           o.frame_number.should == call_stack.size - v
         end
       end
