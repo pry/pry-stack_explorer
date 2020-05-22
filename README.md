@@ -56,12 +56,6 @@ We wander around the stack a little bit, and modify the state of a frame above t
 
 Output from above is `Goodbye` as we changed the `x` local inside the `alpha` (caller) stack frame.
 
-Limitations
--------------------------
-
-* First release, so may have teething problems.
-* Limited to Rubinius, and MRI 1.9.2+ at this stage.
-
 Compatible versions
 -------------------
 * v0.5: Ruby 2.6+, Pry 0.13+
