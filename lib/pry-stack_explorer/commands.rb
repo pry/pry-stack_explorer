@@ -237,7 +237,9 @@ module PryStackExplorer
       banner <<-BANNER
         Usage: stack [OPTIONS]
           Show all accessible stack frames.
-          e.g: show-stack -v
+          e.g: stack -v
+
+          alias: show-stack
       BANNER
 
       def options(opt)
