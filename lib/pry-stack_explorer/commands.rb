@@ -287,6 +287,14 @@ module PryStackExplorer
         end
       end
 
+      def offset_frames
+        base_frame_index, frames = selected_stack_frames
+
+        frames.each_with_index.map do |frame, index|
+          [frame, index + base_frame_index]
+        end
+      end
+
       private :selected_stack_frames
 
       def process
@@ -296,9 +304,9 @@ module PryStackExplorer
           content = ""
           content << "\n#{bold("Showing all accessible frames in stack (#{frame_manager.bindings.size} in total):")}\n--\n"
 
-          base_frame_index, frames = selected_stack_frames
-          frames.each_with_index do |b, index|
-            i = index + base_frame_index
+          frames_with_index = offset_frames
+
+          frames_with_index.each do |b, i|
             if i == frame_manager.binding_index
               content << "=> ##{i} #{memoized_info(i, b, opts[:v])}\n"
             else
