@@ -78,8 +78,8 @@ describe "Commands" do
         @o.bing
       end
 
-      @o.first_method.should  == :bang
-      @o.second_method.should == :bing
+      expect(@o.first_method).to eq(:bang)
+      expect(@o.second_method).to eq(:bing)
     end
 
     describe "by method name regex" do
@@ -91,8 +91,8 @@ describe "Commands" do
           @o.bing
         end
 
-        @o.first_method.should  == :bang
-        @o.second_method.should == :bing
+        expect(@o.first_method).to eq(:bang)
+        expect(@o.second_method).to eq(:bing)
       end
 
       it 'should move through all methods that match regex in order' do
@@ -105,9 +105,9 @@ describe "Commands" do
           @o.bing
         end
 
-        @o.first_method.should  == :bang
-        @o.second_method.should == :bong
-        @o.third_method.should  == :bing
+        expect(@o.first_method).to eq(:bang)
+        expect(@o.second_method).to eq(:bong)
+        expect(@o.third_method).to eq(:bing)
       end
 
       it 'should error if it cant find frame to match regex' do
@@ -116,7 +116,7 @@ describe "Commands" do
           @o.bing
         end
 
-        out.string.should =~ /Error: No frame that matches/
+        expect(out.string).to match(/Error: No frame that matches/)
       end
     end
 
@@ -130,7 +130,7 @@ describe "Commands" do
           @top.bing
         end
 
-        @top.method_list.should  == ['Bottom#bang', 'Middle#bong']
+        expect(@top.method_list).to eq(['Bottom#bang', 'Middle#bong'])
       end
 
       ### ????? ###
@@ -146,8 +146,7 @@ describe "Commands" do
           @top.bing
         end
 
-        @top.method_list.should  == ['Bottom#bang', 'Middle#bong']
-
+        expect(@top.method_list).to eq(['Bottom#bang', 'Middle#bong'])
       end
 
       it 'should allow partial method names' do
@@ -158,8 +157,7 @@ describe "Commands" do
           @top.bing
         end
 
-        @top.method_list.should  == ['Bottom#bang', 'Middle#bong']
-
+        expect(@top.method_list).to eq(['Bottom#bang', 'Middle#bong'])
       end
 
       it 'should error if it cant find frame to match regex' do
@@ -168,7 +166,7 @@ describe "Commands" do
           @top.bing
         end
 
-        out.string.should =~ /Error: No frame that matches/
+        expect(out.string).to match(/Error: No frame that matches/)
       end
     end
   end
@@ -184,8 +182,8 @@ describe "Commands" do
         @o.bing
       end
 
-      @o.first_method.should  == :bong
-      @o.second_method.should == :bang
+      expect(@o.first_method).to eq(:bong)
+      expect(@o.second_method).to eq(:bang)
     end
 
     it 'should move down the call stack two frames at a time' do
@@ -198,8 +196,8 @@ describe "Commands" do
         @o.bing
       end
 
-      @o.first_method.should  == :bing
-      @o.second_method.should == :bang
+      expect(@o.first_method).to eq(:bing)
+      expect(@o.second_method).to eq(:bang)
     end
 
     describe "by method name regex" do
@@ -211,7 +209,7 @@ describe "Commands" do
           @o.bing
         end
 
-        @o.first_method.should == :bong
+        expect(@o.first_method).to eq(:bong)
       end
 
       it 'should move through all methods that match regex in order' do
@@ -225,9 +223,9 @@ describe "Commands" do
           @o.bing
         end
 
-        @o.first_method.should  == :bing
-        @o.second_method.should == :bong
-        @o.third_method.should  == :bang
+        expect(@o.first_method).to eq(:bing)
+        expect(@o.second_method).to eq(:bong)
+        expect(@o.third_method).to eq(:bang)
       end
 
       it 'should error if it cant find frame to match regex' do
@@ -237,7 +235,7 @@ describe "Commands" do
           @o.bing
         end
 
-        out.string.should =~ /Error: No frame that matches/
+        expect(out.string).to match(/Error: No frame that matches/)
       end
     end
 
@@ -251,7 +249,7 @@ describe "Commands" do
           @top.bing
         end
 
-        @top.method_list.should == ['Top#bing', 'Middle#bong']
+        expect(@top.method_list).to eq(['Top#bing', 'Middle#bong'])
       end
 
       ### ????? ###
@@ -265,7 +263,7 @@ describe "Commands" do
           @top.bing
         end
 
-        out.string.should =~ /Error: No frame that matches/
+        expect(out.string).to match(/Error: No frame that matches/)
       end
     end
 
@@ -280,7 +278,7 @@ describe "Commands" do
           @o.bing
         end
 
-        @o.first_method.should == :bing
+        expect(@o.first_method).to eq(:bing)
       end
 
       it 'should NOT jump to frames lower down stack when given method name' do
@@ -290,7 +288,7 @@ describe "Commands" do
           @o.bing
         end
 
-        out.string.should =~ /Error: No frame that matches/
+        expect(out.string).to match(/Error: No frame that matches/)
       end
 
     end
@@ -302,7 +300,7 @@ describe "Commands" do
         @o.bing
       end
 
-      @o.first_method.should == :bing
+      expect(@o.first_method).to eq(:bing)
     end
 
     it 'should return info on current frame when given no parameters' do
@@ -337,7 +335,7 @@ describe "Commands" do
                                           "exit-all"), out=StringIO.new) do
             Pry.start(o, :call_stack => call_stack)
           end
-          o.frame.should == method_names[idx]
+          expect(o.frame).to eq(method_names[idx])
         end
       end
 
@@ -353,7 +351,7 @@ describe "Commands" do
             "exit-all"
           ){ Pry.start(o, call_stack: call_stack) }
 
-          o.frame_number.should == call_stack.size - v
+          expect(o.frame_number).to eq(call_stack.size - v)
         end
       end
     end

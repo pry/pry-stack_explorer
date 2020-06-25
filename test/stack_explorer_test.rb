@@ -33,7 +33,7 @@ describe PryStackExplorer do
           bingbong.bing
         end
 
-        bingbong.frame.should == :bang
+        expect(bingbong.frame).to eq(:bang)
       end
 
       it 'should begin at correct frame even if Pry.start is monkey-patched (only works with one monkey-patch currently)' do
@@ -74,7 +74,7 @@ describe PryStackExplorer do
           o.bing
         end
 
-        o.frame.should == :bong
+        expect(o.frame).to eq(:bong)
       end
 
       it 'should begin session at specified frame when using :call_stack' do
@@ -88,7 +88,7 @@ describe PryStackExplorer do
           Pry.start(binding, :call_stack => [o.gamma, o.beta, o.alpha], :initial_frame => 1)
         end
 
-        o.frame.should == :beta
+        expect(o.frame).to eq(:beta)
       end
 
       # regression test for #12
@@ -102,7 +102,7 @@ describe PryStackExplorer do
           o.==(1)
         end
 
-        out.string.should =~ /hello/
+        expect(out.string).to match(/hello/)
       end
     end
 
@@ -112,7 +112,7 @@ describe PryStackExplorer do
           @o.bing
         end
 
-        out.string.should =~ /bang.*?bong.*?bing/m
+        expect(out.string).to match(/bang.*?bong.*?bing/m)
       end
 
       it 'should set no call stack when :call_stack => false' do
@@ -125,7 +125,7 @@ describe PryStackExplorer do
           o.bing
         end
 
-        out.string.should =~ /No caller stack/
+        expect(out.string).to match(/No caller stack/)
       end
 
       it 'should set custom call stack when :call_stack => [b1, b2]' do
@@ -138,7 +138,7 @@ describe PryStackExplorer do
           Pry.start(binding, :call_stack => [o.beta, o.gamma, o.alpha])
         end
 
-        out.string.should =~ /beta.*?gamma.*?alpha/m
+        expect(out.string).to match(/beta.*?gamma.*?alpha/m)
       end
 
       it 'should raise if custom call stack does not contain bindings' do
@@ -146,7 +146,7 @@ describe PryStackExplorer do
         redirect_pry_io(StringIO.new("self.errors = pry_instance.hooks.errors\nexit\n")) do
           Pry.start(o, :call_stack => [1, 2, 3])
         end
-        o.errors.first.is_a?(ArgumentError).should == true
+        expect(o.errors.first.is_a?(ArgumentError)).to eq(true)
       end
 
       it 'should raise if custom call stack is empty' do
@@ -154,7 +154,7 @@ describe PryStackExplorer do
         redirect_pry_io(StringIO.new("self.errors = pry_instance.hooks.errors\nexit\n")) do
           Pry.start o, :call_stack => []
         end
-        o.errors.first.is_a?(ArgumentError).should == true
+        expect(o.errors.first.is_a?(ArgumentError)).to eq(true)
       end
     end
   end
@@ -173,41 +173,41 @@ describe PryStackExplorer do
 
       it  "should create and push one new FrameManager" do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
-        PE.frame_manager(@pry_instance).is_a?(PE::FrameManager).should == true
-        PE.frame_managers(@pry_instance).count.should == 1
+        expect(PE.frame_manager(@pry_instance).is_a?(PE::FrameManager)).to eq(true)
+        expect(PE.frame_managers(@pry_instance).count).to eq(1)
       end
 
       it "should refresh Pry instance to use FrameManager's active binding" do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
-        @pry_instance.binding_stack.size.should  == 1
-        @pry_instance.binding_stack.first.should == @bindings.first
+        expect(@pry_instance.binding_stack.size).to eq(1)
+        expect(@pry_instance.binding_stack.first).to eq(@bindings.first)
       end
 
       it 'should save prior binding in FrameManager instance' do
         _pry_ = Pry.new
         _pry_.binding_stack.push(b=binding)
         PryStackExplorer.create_and_push_frame_manager(@bindings, _pry_)
-        PryStackExplorer.frame_manager(_pry_).prior_binding.should == b
+        expect(PryStackExplorer.frame_manager(_pry_).prior_binding).to eq(b)
       end
 
       describe ":initial_frame option" do
         it 'should start on specified frame' do
           PE.create_and_push_frame_manager(@bindings, @pry_instance, :initial_frame => 1)
-          @pry_instance.binding_stack.size.should  == 1
-          @pry_instance.binding_stack.first.should == @bindings.last
+          expect(@pry_instance.binding_stack.size).to eq(1)
+          expect(@pry_instance.binding_stack.first).to eq(@bindings.last)
         end
 
         describe "negative numbers" do
           it 'should work with negative frame number (-1)' do
             PE.create_and_push_frame_manager(@bindings, @pry_instance, :initial_frame => -1)
-            @pry_instance.binding_stack.size.should  == 1
-            @pry_instance.binding_stack.first.should == @bindings.last
+            expect(@pry_instance.binding_stack.size).to eq(1)
+            expect(@pry_instance.binding_stack.first).to eq(@bindings.last)
           end
 
           it 'should work with negative frame number (-2)' do
             PE.create_and_push_frame_manager(@bindings, @pry_instance, :initial_frame => -2)
-            @pry_instance.binding_stack.size.should  == 1
-            @pry_instance.binding_stack.first.should == @bindings.first
+            expect(@pry_instance.binding_stack.size).to eq(1)
+            expect(@pry_instance.binding_stack.first).to eq(@bindings.first)
           end
         end
       end
@@ -216,13 +216,13 @@ describe PryStackExplorer do
         _pry_ = Pry.new
         _pry_.backtrace = ["my backtrace"]
         PryStackExplorer.create_and_push_frame_manager(@bindings, _pry_)
-        PryStackExplorer.frame_manager(_pry_).prior_backtrace.should == _pry_.backtrace
+        expect(PryStackExplorer.frame_manager(_pry_).prior_backtrace).to eq(_pry_.backtrace)
       end
 
       it  "should create and push multiple FrameManagers" do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
-        PE.frame_managers(@pry_instance).count.should == 2
+        expect(PE.frame_managers(@pry_instance).count).to eq(2)
       end
 
       it 'should push FrameManagers to stacks based on Pry instance' do
@@ -230,22 +230,22 @@ describe PryStackExplorer do
         bindings = [binding, binding]
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(bindings, p2)
-        PE.frame_managers(@pry_instance).count.should == 1
-        PE.frame_managers(p2).count.should == 1
+        expect(PE.frame_managers(@pry_instance).count).to eq(1)
+        expect(PE.frame_managers(p2).count).to eq(1)
       end
     end
 
     describe "PryStackExplorer.frame_manager" do
       it  "should have the correct bindings" do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
-        PE.frame_manager(@pry_instance).bindings.should == @bindings
+        expect(PE.frame_manager(@pry_instance).bindings).to eq(@bindings)
       end
 
       it "should return the last pushed FrameManager" do
         bindings = [binding, binding]
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(bindings, @pry_instance)
-        PE.frame_manager(@pry_instance).bindings.should == bindings
+        expect(PE.frame_manager(@pry_instance).bindings).to eq(bindings)
       end
 
       it "should return the correct FrameManager for the given Pry instance" do
@@ -253,8 +253,8 @@ describe PryStackExplorer do
         p2 = Pry.new
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(bindings, p2)
-        PE.frame_manager(@pry_instance).bindings.should == @bindings
-        PE.frame_manager(p2).bindings.should == bindings
+        expect(PE.frame_manager(@pry_instance).bindings).to eq(@bindings)
+        expect(PE.frame_manager(p2).bindings).to eq(bindings)
       end
     end
 
@@ -263,14 +263,14 @@ describe PryStackExplorer do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.pop_frame_manager(@pry_instance)
-        PE.frame_managers(@pry_instance).count.should == 1
+        expect(PE.frame_managers(@pry_instance).count).to eq(1)
       end
 
       it "should return the most recently added FrameManager" do
         bindings = [binding, binding]
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(bindings, @pry_instance)
-        PE.pop_frame_manager(@pry_instance).bindings.should == bindings
+        expect(PE.pop_frame_manager(@pry_instance).bindings).to eq(bindings)
       end
 
       it "should remove FrameManager from the appropriate stack based on Pry instance" do
@@ -279,8 +279,8 @@ describe PryStackExplorer do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(bindings, p2)
         PE.pop_frame_manager(@pry_instance)
-        PE.frame_managers(@pry_instance).count.should == 0
-        PE.frame_managers(p2).count.should == 1
+        expect(PE.frame_managers(@pry_instance).count).to eq(0)
+        expect(PE.frame_managers(p2).count).to eq(1)
       end
 
       it "should remove key when no frames remaining for Pry instance" do
@@ -288,7 +288,7 @@ describe PryStackExplorer do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.pop_frame_manager(@pry_instance)
         PE.pop_frame_manager(@pry_instance)
-        PE.frame_hash.has_key?(@pry_instance).should == false
+        expect(PE.frame_hash.has_key?(@pry_instance)).to eq(false)
       end
 
       it 'should not change size of binding_stack when popping' do
@@ -296,11 +296,11 @@ describe PryStackExplorer do
         PE.create_and_push_frame_manager(bindings, @pry_instance)
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.pop_frame_manager(@pry_instance)
-        @pry_instance.binding_stack.size.should == 1
+        expect(@pry_instance.binding_stack.size).to eq(1)
       end
 
       it 'should return nil when popping non-existent frame manager' do
-        PE.pop_frame_manager(@pry_instance).should == nil
+        expect(PE.pop_frame_manager(@pry_instance)).to eq(nil)
       end
 
       describe "restoring previous binding" do
@@ -309,7 +309,7 @@ describe PryStackExplorer do
           PE.create_and_push_frame_manager(bindings, @pry_instance).binding_index = 1
           PE.create_and_push_frame_manager(@bindings, @pry_instance)
           PE.pop_frame_manager(@pry_instance)
-          @pry_instance.binding_stack.first.should == bindings[1]
+          expect(@pry_instance.binding_stack.first).to eq(bindings[1])
         end
 
         it 'should restore previous binding for Pry instance on pop (previous frame frame manager)' do
@@ -317,7 +317,7 @@ describe PryStackExplorer do
           PE.create_and_push_frame_manager(bindings, @pry_instance)
           PE.create_and_push_frame_manager(@bindings, @pry_instance)
           PE.pop_frame_manager(@pry_instance)
-          @pry_instance.binding_stack.first.should == bindings.first
+          expect(@pry_instance.binding_stack.first).to eq(bindings.first)
         end
 
         it 'should restore previous binding for Pry instance on pop (no previous frame manager)' do
@@ -325,7 +325,7 @@ describe PryStackExplorer do
           @pry_instance.binding_stack = [b]
           PE.create_and_push_frame_manager(@bindings, @pry_instance)
           PE.pop_frame_manager(@pry_instance)
-          @pry_instance.binding_stack.first.should == b
+          expect(@pry_instance.binding_stack.first).to eq(b)
         end
 
         it 'should restore previous binding for Pry instance on pop (no previous frame manager AND no empty binding_stack)' do
@@ -334,7 +334,7 @@ describe PryStackExplorer do
           PE.create_and_push_frame_manager(@bindings, @pry_instance)
           @pry_instance.binding_stack.clear
           PE.pop_frame_manager(@pry_instance)
-          @pry_instance.binding_stack.first.should == b
+          expect(@pry_instance.binding_stack.first).to eq(b)
         end
       end
 
@@ -349,9 +349,9 @@ describe PryStackExplorer do
           p1.backtrace = "my backtrace3"
 
           PE.pop_frame_manager(p1)
-          p1.backtrace.should == "my backtrace2"
+          expect(p1.backtrace).to eq("my backtrace2")
           PE.pop_frame_manager(p1)
-          p1.backtrace.should == "my backtrace1"
+          expect(p1.backtrace).to eq("my backtrace1")
         end
       end
     end
@@ -361,7 +361,7 @@ describe PryStackExplorer do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.clear_frame_managers(@pry_instance)
-        PE.frame_hash.has_key?(@pry_instance).should == false
+        expect(PE.frame_hash.has_key?(@pry_instance)).to eq(false)
       end
 
       it "should clear all FrameManagers for a Pry instance but leave others untouched" do
@@ -370,15 +370,15 @@ describe PryStackExplorer do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(bindings, p2)
         PE.clear_frame_managers(@pry_instance)
-        PE.frame_managers(p2).count.should == 1
-        PE.frame_hash.has_key?(@pry_instance).should == false
+        expect(PE.frame_managers(p2).count).to eq(1)
+        expect(PE.frame_hash.has_key?(@pry_instance)).to eq(false)
       end
 
       it "should remove key" do
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.create_and_push_frame_manager(@bindings, @pry_instance)
         PE.clear_frame_managers(@pry_instance)
-        PE.frame_hash.has_key?(@pry_instance).should == false
+        expect(PE.frame_hash.has_key?(@pry_instance)).to eq(false)
       end
 
       describe "_pry_.backtrace" do
@@ -392,7 +392,7 @@ describe PryStackExplorer do
           p1.backtrace = "my backtrace3"
 
           PE.clear_frame_managers(p1)
-          p1.backtrace.should == "my backtrace1"
+          expect(p1.backtrace).to eq("my backtrace1")
         end
       end
     end
