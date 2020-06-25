@@ -1,3 +1,5 @@
+* Stack now filters for application frames
+
 ## v0.6.0 (31 December 2020)
 * Use binding_of_caller version for Ruby 3.0 (#55)
 * Rename 'show-stack' to 'stack' (#50, #8)

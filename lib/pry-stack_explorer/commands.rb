@@ -247,6 +247,7 @@ module PryStackExplorer
         opt.on :H, :head, "Display the first N stack frames (defaults to 10).", :optional_argument => true, :as => Integer, :default => 10
         opt.on :T, :tail, "Display the last N stack frames (defaults to 10).", :optional_argument => true, :as => Integer, :default => 10
         opt.on :c, :current, "Display N frames either side of current frame (default to 5).", :optional_argument => true, :as => Integer, :default => 5
+        opt.on :a, :app, "Display application frames only", optional_argument: true
       end
 
       def memoized_info(index, b, verbose)
@@ -306,9 +307,17 @@ module PryStackExplorer
       private
 
       def make_stack_lines
-        offset_frames.map do |b, i|
+        frames_with_indices.map do |b, i|
           make_stack_line(b, i, (i == frame_manager.binding_index))
         end.join("\n")
+      end
+
+      def frames_with_indices
+        if opts.present?(:app) && defined?(ActiveSupport::BacktraceCleaner)
+          app_frames
+        else
+          offset_frames
+        end
       end
 
       # "=> #0  method_name <Class#method(...)>"
@@ -344,6 +353,10 @@ module PryStackExplorer
           end
       end
 
+      # also see Rails::BacktraceCleaner
+      def backtrace_cleaner
+        @backtrace_cleaner ||= ActiveSupport::BacktraceCleaner.new
+      end
     end
 
     alias_command "show-stack", "stack"
