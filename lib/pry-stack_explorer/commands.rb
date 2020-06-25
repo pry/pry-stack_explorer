@@ -287,6 +287,37 @@ module PryStackExplorer
         end
       end
 
+      private :selected_stack_frames
+
+      def process
+        return no_stack_available! unless frame_manager
+
+        title = "Showing all accessible frames in stack (#{frame_manager.bindings.size} in total):"
+
+        content = [
+          bold(title),
+          "---",
+          make_stack_lines
+        ].join("\n")
+
+        stagger_output content
+      end
+
+      private
+
+      def make_stack_lines
+        offset_frames.map do |b, i|
+          make_stack_line(b, i, (i == frame_manager.binding_index))
+        end.join("\n")
+      end
+
+      # "=> #0  method_name <Class#method(...)>"
+      def make_stack_line(b, i, active)
+        arw = active ? "=>" : "  "
+
+        "#{arw} ##{i} #{memoized_info(i, b, opts[:v])}"
+      end
+
       def offset_frames
         base_frame_index, frames = selected_stack_frames
 
@@ -295,27 +326,22 @@ module PryStackExplorer
         end
       end
 
-      private :selected_stack_frames
+      def no_stack_available!
+        output.puts "No caller stack available!"
+      end
 
-      def process
-        if !frame_manager
-          output.puts "No caller stack available!"
-        else
-          content = ""
-          content << "\n#{bold("Showing all accessible frames in stack (#{frame_manager.bindings.size} in total):")}\n--\n"
+      LOCATION_LAMBDA = ->(_binding){ _binding.source_location[0] }
 
-          frames_with_index = offset_frames
+      def app_frames
+        locations = frame_manager.bindings.map(&LOCATION_LAMBDA)
+        filtered = backtrace_cleaner.clean(locations)
 
-          frames_with_index.each do |b, i|
-            if i == frame_manager.binding_index
-              content << "=> ##{i} #{memoized_info(i, b, opts[:v])}\n"
-            else
-              content << "   ##{i} #{memoized_info(i, b, opts[:v])}\n"
-            end
+        frame_manager.bindings
+          .each_with_index
+          .map
+          .select do |_binding, _index|
+            LOCATION_LAMBDA.call(_binding).in?(filtered)
           end
-
-          stagger_output content
-        end
       end
 
     end
