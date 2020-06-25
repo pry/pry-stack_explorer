@@ -2,6 +2,7 @@ require 'ostruct'
 require 'pry'
 
 require_relative 'support/input_tester'
+require_relative 'support/bingbong'
 
 # unless Object.const_defined? 'PryStackExplorer'
   $:.unshift File.expand_path '../../lib', __FILE__
@@ -35,22 +36,30 @@ WhenStartedHook  = Pry.config.hooks.get_hook(:when_started, :save_caller_binding
 Pry.reset_defaults
 
 module PryTestUtils
+
   # Set I/O streams.
   #
   # Out defaults to an anonymous StringIO.
-  def redirect_pry_io(new_in, new_out = StringIO.new)
+  def with_pry_output_captured(new_in, new_out = StringIO.new)
     old_in = Pry.input
     old_out = Pry.output
 
     Pry.input = new_in
     Pry.output = new_out
+
+
     begin
       yield
     ensure
       Pry.input = old_in
       Pry.output = old_out
     end
+
+    new_out
   end
+
+  alias :redirect_pry_io :with_pry_output_captured
+
 
   def mock_pry(*args)
     binding = args.first.is_a?(Binding) ? args.shift : binding()
@@ -66,7 +75,8 @@ module PryTestUtils
   end
 
   def issue_pry_commands(*commands, &block)
-    redirect_pry_io(InputTester.new(*commands), out=StringIO.new, &block)
+    input_tester = InputTester.new(*commands)
+    redirect_pry_io(input_tester, &block).string
   end
 end
 
