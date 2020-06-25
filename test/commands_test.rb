@@ -49,6 +49,20 @@ describe "Commands" do
     Pry.config.hooks.delete_hook(:after_session, :delete_frame_manager)
   end
 
+  describe "stack" do
+    it "outputs the call stack" do
+      output = issue_pry_commands("stack"){ bingbong.bing }
+
+      expect(output).to match(/bang.*?bong.*?bing/m)
+    end
+
+    it "supports 'show-stack' as an alias" do
+      output = issue_pry_commands("show-stack"){ bingbong.bing }
+
+      expect(output).to match(/bang.*?bong.*?bing/m)
+    end
+  end
+
   describe "up" do
     it 'should move up the call stack one frame at a time' do
       redirect_pry_io(InputTester.new("@methods << __method__",
