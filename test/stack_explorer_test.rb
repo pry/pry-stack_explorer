@@ -99,7 +99,7 @@ describe PryStackExplorer do
 
     describe ":call_stack option" do
       it 'should invoke a session with the call stack set' do
-        redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
+        redirect_pry_io(StringIO.new("stack\nexit\n"), out=StringIO.new) do
           @o.bing
         end
 
@@ -112,7 +112,7 @@ describe PryStackExplorer do
         def o.bong() bang end
         def o.bang() Pry.start(binding, :call_stack => false) end
 
-        redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
+        redirect_pry_io(StringIO.new("stack\nexit\n"), out=StringIO.new) do
           o.bing
         end
 
@@ -125,7 +125,7 @@ describe PryStackExplorer do
         def o.beta() binding end
         def o.gamma() binding end
 
-        redirect_pry_io(StringIO.new("show-stack\nexit\n"), out=StringIO.new) do
+        redirect_pry_io(StringIO.new("stack\nexit\n"), out=StringIO.new) do
           Pry.start(binding, :call_stack => [o.beta, o.gamma, o.alpha])
         end
 

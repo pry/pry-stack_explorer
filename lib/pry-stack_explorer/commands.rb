@@ -231,13 +231,15 @@ module PryStackExplorer
       end
     end
 
-    create_command "show-stack", "Show all frames" do
+    create_command "stack", "Show all frames" do
       include FrameHelpers
 
       banner <<-BANNER
-        Usage: show-stack [OPTIONS]
+        Usage: stack [OPTIONS]
           Show all accessible stack frames.
-          e.g: show-stack -v
+          e.g: stack -v
+
+          alias: show-stack
       BANNER
 
       def options(opt)
@@ -309,5 +311,8 @@ module PryStackExplorer
       end
 
     end
+
+    alias_command "show-stack", "stack"
+
   end
 end

@@ -17,7 +17,7 @@ Unlike `ruby-debug`, pry-stack_explorer incurs no runtime cost and
 enables navigation right up the call-stack to the birth of the
 program.
 
-The `up`, `down`, `frame` and `show-stack` commands are provided. See
+The `up`, `down`, `frame` and `stack` commands are provided. See
 Pry's in-session help for more information on any of these commands.
 
 ## Usage
@@ -26,7 +26,7 @@ Provides commands available in Pry sessions.
 Commands:
 * `up`/`down` - Move up or down the call stack
 * `frame [n]` - Go to frame *n*
-* `show-stack` - Show call stack
+* `stack` - Show call stack
 
 
 ## Install
