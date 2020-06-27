@@ -20,69 +20,6 @@ module PryStackExplorer
       frame_managers.count > 1 || frame_manager.prior_binding
     end
 
-    # Return a description of the frame (binding).
-    # This is only useful for regular old bindings that have not been
-    # enhanced by `#of_caller`.
-    # @param [Binding] b The binding.
-    # @return [String] A description of the frame (binding).
-    def frame_description(b)
-      b_self = b.eval('self')
-      b_method = b.eval('__method__')
-
-      if b_method && b_method != :__binding__ && b_method != :__binding_impl__
-        b_method.to_s
-      elsif b_self.instance_of?(Module)
-        "<module:#{b_self}>"
-      elsif b_self.instance_of?(Class)
-        "<class:#{b_self}>"
-      else
-        "<main>"
-      end
-    end
-
-    # Return a description of the passed binding object. Accepts an
-    # optional `verbose` parameter.
-    # @param [Binding] b The binding.
-    # @param [Boolean] verbose Whether to generate a verbose description.
-    # @return [String] The description of the binding.
-    def frame_info(b, verbose = false)
-      meth = b.eval('__method__')
-      b_self = b.eval('self')
-      meth_obj = Pry::Method.from_binding(b) if meth
-
-      type = b.frame_type ? "[#{b.frame_type}]".ljust(9) : ""
-      desc = b.frame_description ? "#{b.frame_description}" : "#{frame_description(b)}"
-      sig = meth_obj ? "<#{signature_with_owner(meth_obj)}>" : ""
-
-      self_clipped = "#{Pry.view_clip(b_self)}"
-      path = '@ ' + b.source_location.join(':')
-
-      if !verbose
-        "#{type} #{desc} #{sig}"
-      else
-        "#{type} #{desc} #{sig}\n      in #{self_clipped} #{path}"
-      end
-    end
-
-    # @param [Pry::Method] meth_obj The method object.
-    # @return [String] Signature for the method object in Class#method format.
-    def signature_with_owner(meth_obj)
-      if !meth_obj.undefined?
-        args = meth_obj.parameters.inject([]) do |arr, (type, name)|
-          name ||= (type == :block ? 'block' : "arg#{arr.size + 1}")
-          arr << case type
-                 when :req   then name.to_s
-                 when :opt   then "#{name}=?"
-                 when :rest  then "*#{name}"
-                 when :block then "&#{name}"
-                 else '?'
-                 end
-        end
-        "#{meth_obj.name_with_owner}(#{args.join(', ')})"
-      else
-        "#{meth_obj.name_with_owner}(UNKNOWN) (undefined method)"
-      end
-    end
 
     #  Regexp.new(args[0])
     def find_frame_by_regex(regex, up_or_down)
@@ -225,7 +162,8 @@ module PryStackExplorer
             new_frame_index = find_frame_by_regex(Regexp.new(args[0]), :up)
             frame_manager.change_frame_to new_frame_index
           else
-            output.puts "##{frame_manager.binding_index} #{frame_info(target, true)}"
+            frame = PryStackExplorer::Frame.make(target)
+            output.puts "##{frame_manager.binding_index} #{frame.info(verbose: true)}"
           end
         end
       end
@@ -249,18 +187,6 @@ module PryStackExplorer
         opt.on :c, :current, "Display N frames either side of current frame (default to 5).", :optional_argument => true, :as => Integer, :default => 5
         opt.on :a, :app, "Display application frames only", optional_argument: true
       end
-
-      def memoized_info(index, b, verbose)
-        frame_manager.user[:frame_info] ||= Hash.new { |h, k| h[k] = [] }
-
-        if verbose
-          frame_manager.user[:frame_info][:v][index]      ||= frame_info(b, verbose)
-        else
-          frame_manager.user[:frame_info][:normal][index] ||= frame_info(b, verbose)
-        end
-      end
-
-      private :memoized_info
 
       # @return [Array<Fixnum, Array<Binding>>] Return tuple of
       #   base_frame_index and the array of frames.
@@ -320,11 +246,25 @@ module PryStackExplorer
         end
       end
 
+      ARROW = "=>"
+      EMPTY = "  "
+
       # "=> #0  method_name <Class#method(...)>"
       def make_stack_line(b, i, active)
-        arw = active ? "=>" : "  "
+        arrow = active ? ARROW : EMPTY
+        frame_no = i.to_s.rjust(2)
+        frame_info = memoized_frame(i, b).info(verbose: opts[:v])
 
-        "#{arw} ##{i} #{memoized_info(i, b, opts[:v])}"
+        [
+          arrow,
+          blue(bold frame_no) + ":",
+          frame_info,
+        ].join(" ")
+      end
+
+      def memoized_frame(index, b)
+        frame_manager.user[:frame_info] ||= {}
+        frame_manager.user[:frame_info][index] ||= PryStackExplorer::Frame.make(b)
       end
 
       def offset_frames
