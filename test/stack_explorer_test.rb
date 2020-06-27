@@ -44,11 +44,8 @@ describe PryStackExplorer do
       end
 
       it 'should begin session at specified frame' do
-        o = Object.new
-        class << o; attr_reader :frame; end
-        def o.bing() bong end
-        def o.bong() bang end
-        def o.bang() Pry.start(binding, :initial_frame => 1) end #*
+        o = bingbong
+        def o.bang; Pry.start(binding, :initial_frame => 1); end
 
         redirect_pry_io(StringIO.new("@frame = __method__\nexit-all\n"), out=StringIO.new) do
           o.bing
@@ -96,13 +93,10 @@ describe PryStackExplorer do
       end
 
       it 'should set no call stack when :call_stack => false' do
-        o = Object.new
-        def o.bing() bong end
-        def o.bong() bang end
-        def o.bang() Pry.start(binding, :call_stack => false) end
+        def bingbong.bang; Pry.start(binding, :call_stack => false); end
 
         redirect_pry_io(StringIO.new("stack\nexit\n"), out=StringIO.new) do
-          o.bing
+          bingbong.bing
         end
 
         expect(out.string).to match(/No caller stack/)
