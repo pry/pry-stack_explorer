@@ -4,6 +4,7 @@
 require "pry" unless defined?(::Pry)
 require "pry-stack_explorer/version"
 require "pry-stack_explorer/commands"
+require "pry-stack_explorer/frame"
 require "pry-stack_explorer/frame_manager"
 require "pry-stack_explorer/when_started_hook"
 require "binding_of_caller"
