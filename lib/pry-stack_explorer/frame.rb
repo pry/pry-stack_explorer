@@ -1,3 +1,5 @@
+require_relative "frame/rspec_frame"
+
 module PryStackExplorer
   class Frame
     include Pry::Helpers::Text
@@ -5,7 +7,11 @@ module PryStackExplorer
     attr_reader :b
 
     def self.make(_binding)
-      new(_binding)
+      if defined?(RSpec::Core) && _binding.receiver.is_a?(RSpec::Core::ExampleGroup)
+        RSpecFrame.new(_binding)
+      else
+        new(_binding)
+      end
     end
 
     def initialize(_binding)

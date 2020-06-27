@@ -1,4 +1,5 @@
 * Colorize stack output!
+* RSpec 'it' blocks are now better tagged
 
 ## v0.6.3 (10 April 2026)
 * Fix rake dev-dep (published 0.6.2 gem incorrectly specified ~> 0.9)
