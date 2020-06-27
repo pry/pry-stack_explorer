@@ -3,20 +3,9 @@ require_relative 'test_helper'
 describe PryStackExplorer do
 
   describe "Pry.start" do
+    include ResetHelper
 
     let(:bingbong){ BingBong.new }
-
-    before do
-      Pry.config.hooks.add_hook(:when_started, :save_caller_bindings, WhenStartedHook)
-      Pry.config.hooks.add_hook(:after_session, :delete_frame_manager, AfterSessionHook)
-
-      @o = BingBong.new
-    end
-
-    after do
-      Pry.config.hooks.delete_hook(:when_started, :save_caller_bindings)
-      Pry.config.hooks.delete_hook(:after_session, :delete_frame_manager)
-    end
 
     describe ":initial_frame option" do
       it 'should default to first frame when no option provided' do
@@ -55,11 +44,8 @@ describe PryStackExplorer do
       end
 
       it 'should begin session at specified frame' do
-        o = Object.new
-        class << o; attr_reader :frame; end
-        def o.bing() bong end
-        def o.bong() bang end
-        def o.bang() Pry.start(binding, :initial_frame => 1) end #*
+        o = bingbong
+        def o.bang; Pry.start(binding, :initial_frame => 1); end
 
         redirect_pry_io(StringIO.new("@frame = __method__\nexit-all\n"), out=StringIO.new) do
           o.bing
@@ -100,20 +86,17 @@ describe PryStackExplorer do
     describe ":call_stack option" do
       it 'should invoke a session with the call stack set' do
         redirect_pry_io(StringIO.new("stack\nexit\n"), out=StringIO.new) do
-          @o.bing
+          bingbong.bing
         end
 
         expect(out.string).to match(/bang.*?bong.*?bing/m)
       end
 
       it 'should set no call stack when :call_stack => false' do
-        o = Object.new
-        def o.bing() bong end
-        def o.bong() bang end
-        def o.bang() Pry.start(binding, :call_stack => false) end
+        def bingbong.bang; Pry.start(binding, :call_stack => false); end
 
         redirect_pry_io(StringIO.new("stack\nexit\n"), out=StringIO.new) do
-          o.bing
+          bingbong.bing
         end
 
         expect(out.string).to match(/No caller stack/)

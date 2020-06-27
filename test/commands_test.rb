@@ -36,18 +36,13 @@ end
 describe "Commands" do
   let(:bingbong){ BingBong.new }
 
-  before do
-    Pry.config.hooks.add_hook(:when_started, :save_caller_bindings, WhenStartedHook)
-    Pry.config.hooks.add_hook(:after_session, :delete_frame_manager, AfterSessionHook)
+  include ResetHelper
 
+  before do
     method_list = []
     @top = Top.new method_list
   end
 
-  after do
-    Pry.config.hooks.delete_hook(:when_started, :save_caller_bindings)
-    Pry.config.hooks.delete_hook(:after_session, :delete_frame_manager)
-  end
 
   describe "stack" do
     it "outputs the call stack" do

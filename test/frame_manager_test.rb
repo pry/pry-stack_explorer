@@ -1,8 +1,9 @@
 require_relative 'test_helper'
 
-Pry.config.output = StringIO.new
-
 describe PryStackExplorer::FrameManager do
+  before :all do
+    redirect_pry_output!
+  end
 
   before do
     @pry_instance = Pry.new
