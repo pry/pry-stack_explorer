@@ -1,9 +1,15 @@
+require_relative "frame/it_block"
+
 module PryStackExplorer
   class Frame
     attr_reader :b
 
     def self.make(_binding)
-      new(_binding)
+      if defined?(RSpec::Core) && _binding.receiver.is_a?(RSpec::Core::ExampleGroup)
+        ItBlock.new(_binding)
+      else
+        new(_binding)
+      end
     end
 
     def initialize(_binding)
