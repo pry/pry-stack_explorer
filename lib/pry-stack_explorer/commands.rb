@@ -20,7 +20,7 @@ module PryStackExplorer
           raise Pry::CommandError, "Nowhere to go!"
         else
           if inc =~ /\d+/
-            frame_manager.change_frame_to frame_manager.binding_index + inc.to_i
+            frame_manager.travel(+inc.to_i)
           elsif match = /^([A-Z]+[^#.]*)(#|\.)(.+)$/.match(inc)
             new_frame_index = find_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :up)
             frame_manager.change_frame_to new_frame_index
@@ -54,7 +54,7 @@ module PryStackExplorer
             if frame_manager.binding_index - inc.to_i < 0
               raise Pry::CommandError, "At bottom of stack, cannot go further!"
             else
-              frame_manager.change_frame_to frame_manager.binding_index - inc.to_i
+              frame_manager.travel(-inc.to_i)
             end
           elsif match = /^([A-Z]+[^#.]*)(#|\.)(.+)$/.match(inc)
             new_frame_index = find_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :down)
