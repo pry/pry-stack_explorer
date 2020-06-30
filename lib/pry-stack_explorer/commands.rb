@@ -19,13 +19,7 @@ module PryStackExplorer
         if !frame_manager
           raise Pry::CommandError, "Nowhere to go!"
         else
-          if inc =~ /\d+/
-            frame_manager.travel(+inc.to_i)
-          elsif match = /^([A-Z]+[^#.]*)(#|\.)(.+)$/.match(inc)
-            frame_manager.change_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :up)
-          elsif inc =~ /^[^-].*$/
-            frame_manager.change_frame_by_regex(Regexp.new(inc), :up)
-          end
+          go_updown(:up, inc)
         end
       end
     end
@@ -48,17 +42,7 @@ module PryStackExplorer
         if !frame_manager
           raise Pry::CommandError, "Nowhere to go!"
         else
-          if inc =~ /\d+/
-            if frame_manager.binding_index - inc.to_i < 0
-              raise Pry::CommandError, "At bottom of stack, cannot go further!"
-            else
-              frame_manager.travel(-inc.to_i)
-            end
-          elsif match = /^([A-Z]+[^#.]*)(#|\.)(.+)$/.match(inc)
-            frame_manager.change_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :down)
-          elsif inc =~ /^[^-].*$/
-            frame_manager.change_frame_by_regex(Regexp.new(inc), :down)
-          end
+          go_updown(:down, inc)
         end
       end
     end
@@ -78,20 +62,13 @@ module PryStackExplorer
       BANNER
 
       def process
-        if !frame_manager
-          raise Pry::CommandError, "nowhere to go!"
-        else
+        raise Pry::CommandError, "Nowhere to go!" unless frame_manager
 
-          if args[0] =~ /\d+/
-            frame_manager.change_frame_to args[0].to_i
-          elsif match = /^([A-Z]+[^#.]*)(#|\.)(.+)$/.match(args[0])
-            frame_manager.change_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :up)
-          elsif args[0] =~ /^[^-].*$/
-            frame_manager.change_frame_by_regex(Regexp.new(args[0]), :up)
-          else
-            frame = PryStackExplorer::Frame.make(target)
-            output.puts "##{frame_manager.binding_index} #{frame.info(verbose: true)}"
-          end
+        if args[0].nil? || args[0].empty?
+          frame = PryStackExplorer::Frame.make(target)
+          output.puts "##{frame_manager.binding_index} #{frame.info(verbose: true)}"
+        else
+          go_updown(:up, args[0])
         end
       end
     end

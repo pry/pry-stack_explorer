@@ -13,5 +13,15 @@ module PryStackExplorer
     def frame_managers
       PryStackExplorer.frame_managers(pry_instance)
     end
+
+    def go_updown(up_or_down, argument)
+      if argument =~ /\d+/
+        frame_manager.travel(argument.to_i, up_or_down)
+      elsif match = /^([A-Z]+[^#.]*)(#|\.)(.+)$/.match(argument)
+        frame_manager.change_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), up_or_down)
+      elsif argument =~ /^[^-].*$/
+        frame_manager.change_frame_by_regex(Regexp.new(argument), up_or_down)
+      end
+    end
   end
 end
