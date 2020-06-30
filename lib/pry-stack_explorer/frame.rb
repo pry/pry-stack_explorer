@@ -34,6 +34,19 @@ module PryStackExplorer
       end
     end
 
+    T = Pry::Helpers::Text
+
+    COLOR_SCHEME = {
+      description: {
+        context: :default,
+        method: :green,
+      },
+      signature: {
+        class: :default,
+        method: [:blue, :bold],
+        arguments: :blue,
+      }
+    }
 
     # Produces a string describing the frame
     # @param [Options] verbose: Whether to generate a verbose description.
@@ -41,13 +54,29 @@ module PryStackExplorer
     def info(verbose: false)
       return @info[!!verbose] if @info
 
+      deskription = description&.match(/((?:block(?:\s\(\d levels\))?)(?: in ))?(.*)/)
+        .to_a.then do |_, a, b|
+          [
+            a,
+            T.green(b)
+          ].join("")
+        end
+
       base = ""
       base << faded(pretty_type.ljust(9))
-      base << " #{description}"
+      base << " "
+      base << (deskription)
 
       if sig
         base << faded(" | ")
-        base << sig
+        base << sig.match(/(.*?)([#\.].*?)(\(.*?\))/).to_a
+          .then do |_, a, b, c|
+            [
+              (T.default a),
+              (T.blue T.bold b),
+              (T.blue c)
+            ].join("")
+          end
       end
 
       @info = {
