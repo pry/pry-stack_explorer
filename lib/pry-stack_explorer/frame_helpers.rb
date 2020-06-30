@@ -23,7 +23,7 @@ module PryStackExplorer
 
     #  Regexp.new(args[0])
     def find_frame_by_regex(regex, up_or_down)
-      frame_index = find_frame_by_block(up_or_down) do |b|
+      frame_index = frame_manager.find_frame_by_block(up_or_down) do |b|
         b.eval("__method__").to_s =~ regex
       end
 
@@ -35,7 +35,7 @@ module PryStackExplorer
     end
 
     def find_frame_by_object_regex(class_regex, method_regex, up_or_down)
-      frame_index = find_frame_by_block(up_or_down) do |b|
+      frame_index = frame_manager.find_frame_by_block(up_or_down) do |b|
         class_match = b.eval("self.class").to_s =~ class_regex
         meth_match = b.eval("__method__").to_s =~ method_regex
 
@@ -47,22 +47,6 @@ module PryStackExplorer
       else
         raise Pry::CommandError, "No frame that matches #{class_regex.source}" + '#' + "#{method_regex.source} found!"
       end
-    end
-
-    def find_frame_by_block(up_or_down)
-      start_index = frame_manager.binding_index
-
-      if up_or_down == :down
-        enum = frame_manager.bindings[0..start_index - 1].reverse_each
-      else
-        enum = frame_manager.bindings[start_index + 1..-1]
-      end
-
-      new_frame = enum.find do |b|
-        yield(b)
-      end
-
-      frame_manager.bindings.index(new_frame)
     end
   end
 end

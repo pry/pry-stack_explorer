@@ -81,5 +81,21 @@ module PryStackExplorer
       @pry.run_command "whereami" if run_whereami
     end
 
+
+    def find_frame_by_block(up_or_down)
+      start_index = binding_index
+
+      if up_or_down == :down
+        enum = bindings[0..start_index - 1].reverse_each
+      else
+        enum = bindings[start_index + 1..-1]
+      end
+
+      new_frame = enum.find do |b|
+        yield(b)
+      end
+
+      bindings.index(new_frame)
+    end
   end
 end
