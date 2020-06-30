@@ -66,7 +66,9 @@ module PryStackExplorer
     end
 
     # Travels up or down by `steps`. (Can be positive (up) or negative (down))
-    def travel(steps)
+    def travel(steps, up_or_down = :up)
+      steps = {up: 1, down: -1}[up_or_down] * steps
+
       change_frame_to(binding_index + steps)
     end
 
@@ -74,6 +76,7 @@ module PryStackExplorer
     # Note that indexing base is `0`
     # @param [Fixnum] index The index of the frame.
     def change_frame_to(index, run_whereami=true)
+      check_destination_in_bounds!(index)
 
       set_binding_index_safely(index)
 
@@ -84,6 +87,13 @@ module PryStackExplorer
       end
 
       @pry.run_command "whereami" if run_whereami
+    end
+
+    def check_destination_in_bounds!(index)
+      if index < 0
+        raise Pry::CommandError, "At bottom of stack, cannot go further!"
+      # elsif index > n
+      end
     end
 
 
@@ -101,6 +111,51 @@ module PryStackExplorer
       end
 
       bindings.index(new_frame)
+    end
+
+    def find_frame_by_regex(regex, up_or_down)
+      frame_index = find_frame_by_block(up_or_down) do |b|
+        b.eval("__method__").to_s =~ regex
+      end
+
+      if frame_index
+        frame_index
+      else
+        raise Pry::CommandError, "No frame that matches #{regex.source} found!"
+      end
+    end
+
+    def find_frame_by_object_regex(class_regex, method_regex, up_or_down)
+      frame_index = find_frame_by_block(up_or_down) do |b|
+        class_match = b.eval("self.class").to_s =~ class_regex
+        meth_match = b.eval("__method__").to_s =~ method_regex
+
+        class_match && meth_match
+      end
+
+      if frame_index
+        frame_index
+      else
+        raise Pry::CommandError, "No frame that matches #{class_regex.source}" + '#' + "#{method_regex.source} found!"
+      end
+    end
+
+    def change_frame_by_object_regex(*args)
+      new_frame_index = find_frame_by_object_regex(*args)
+      change_frame_to new_frame_index
+    end
+
+    def change_frame_by_regex(*args)
+      new_frame_index = find_frame_by_regex(*args)
+      change_frame_to new_frame_index
+    end
+
+    # @return [Boolean] Whether there is a context to return to once
+    #   the current `frame_manager` is popped.
+    #
+    # Currently unused
+    def prior_context_exists?
+      count > 1 || prior_binding
     end
   end
 end
