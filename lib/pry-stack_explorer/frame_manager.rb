@@ -65,6 +65,11 @@ module PryStackExplorer
       end
     end
 
+    # Travels up or down by `steps`. (Can be positive (up) or negative (down))
+    def travel(steps)
+      change_frame_to(binding_index + steps)
+    end
+
     # Change active frame to the one indexed by `index`.
     # Note that indexing base is `0`
     # @param [Fixnum] index The index of the frame.
