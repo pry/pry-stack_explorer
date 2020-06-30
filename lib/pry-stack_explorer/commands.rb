@@ -22,11 +22,9 @@ module PryStackExplorer
           if inc =~ /\d+/
             frame_manager.travel(+inc.to_i)
           elsif match = /^([A-Z]+[^#.]*)(#|\.)(.+)$/.match(inc)
-            new_frame_index = find_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :up)
-            frame_manager.change_frame_to new_frame_index
+            frame_manager.change_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :up)
           elsif inc =~ /^[^-].*$/
-            new_frame_index = find_frame_by_regex(Regexp.new(inc), :up)
-            frame_manager.change_frame_to new_frame_index
+            frame_manager.change_frame_by_regex(Regexp.new(inc), :up)
           end
         end
       end
@@ -57,11 +55,9 @@ module PryStackExplorer
               frame_manager.travel(-inc.to_i)
             end
           elsif match = /^([A-Z]+[^#.]*)(#|\.)(.+)$/.match(inc)
-            new_frame_index = find_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :down)
-            frame_manager.change_frame_to new_frame_index
+            frame_manager.change_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :down)
           elsif inc =~ /^[^-].*$/
-            new_frame_index = find_frame_by_regex(Regexp.new(inc), :down)
-            frame_manager.change_frame_to new_frame_index
+            frame_manager.change_frame_by_regex(Regexp.new(inc), :down)
           end
         end
       end
@@ -89,11 +85,9 @@ module PryStackExplorer
           if args[0] =~ /\d+/
             frame_manager.change_frame_to args[0].to_i
           elsif match = /^([A-Z]+[^#.]*)(#|\.)(.+)$/.match(args[0])
-            new_frame_index = find_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :up)
-            frame_manager.change_frame_to new_frame_index
+            frame_manager.change_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), :up)
           elsif args[0] =~ /^[^-].*$/
-            new_frame_index = find_frame_by_regex(Regexp.new(args[0]), :up)
-            frame_manager.change_frame_to new_frame_index
+            frame_manager.change_frame_by_regex(Regexp.new(args[0]), :up)
           else
             frame = PryStackExplorer::Frame.make(target)
             output.puts "##{frame_manager.binding_index} #{frame.info(verbose: true)}"
