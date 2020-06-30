@@ -5,7 +5,7 @@ module PryStackExplorer
     # @return [PryStackExplorer::FrameManager] The active frame manager for
     #   the current `Pry` instance.
     def frame_manager
-      PryStackExplorer.frame_manager(pry_instance)
+      PryStackExplorer.frame_manager(pry_instance) || no_stack_available!
     end
 
     # @return [Array<PryStackExplorer::FrameManager>] All the frame
@@ -22,6 +22,10 @@ module PryStackExplorer
       elsif argument =~ /^[^-].*$/
         frame_manager.change_frame_by_regex(Regexp.new(argument), up_or_down)
       end
+    end
+
+    def no_stack_available!
+      raise Pry::CommandError, "No caller stack available!"
     end
   end
 end

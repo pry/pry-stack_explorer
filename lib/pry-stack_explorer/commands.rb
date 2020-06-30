@@ -15,12 +15,7 @@ module PryStackExplorer
 
       def process
         inc = args.first.nil? ? "1" : args.first
-
-        if !frame_manager
-          raise Pry::CommandError, "Nowhere to go!"
-        else
-          go_updown(:up, inc)
-        end
+        go_updown(:up, inc)
       end
     end
 
@@ -38,12 +33,7 @@ module PryStackExplorer
 
       def process
         inc = args.first.nil? ? "1" : args.first
-
-        if !frame_manager
-          raise Pry::CommandError, "Nowhere to go!"
-        else
-          go_updown(:down, inc)
-        end
+        go_updown(:down, inc)
       end
     end
 
@@ -62,8 +52,6 @@ module PryStackExplorer
       BANNER
 
       def process
-        raise Pry::CommandError, "Nowhere to go!" unless frame_manager
-
         if args[0].empty?
           frame = PryStackExplorer::Frame.make(target)
           output.puts "##{frame_manager.binding_index} #{frame.info(verbose: true)}"
@@ -121,9 +109,8 @@ module PryStackExplorer
       private :selected_stack_frames
 
       def process
-        return no_stack_available! unless frame_manager
-
-        title = "Showing all accessible frames in stack (#{frame_manager.bindings.size} in total):"
+        stack_size = frame_manager.bindings.size
+        title = "Showing all accessible frames in stack (#{stack_size} in total):"
 
         content = [
           bold(title),
@@ -177,10 +164,6 @@ module PryStackExplorer
         frames.each_with_index.map do |frame, index|
           [frame, index + base_frame_index]
         end
-      end
-
-      def no_stack_available!
-        output.puts "No caller stack available!"
       end
 
       LOCATION_LAMBDA = ->(_binding){ _binding.source_location[0] }
