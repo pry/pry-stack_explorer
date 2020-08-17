@@ -1,3 +1,5 @@
+require "bundler/gem_tasks"
+
 $:.unshift 'lib'
 
 dlext = RbConfig::CONFIG['DLEXT']
