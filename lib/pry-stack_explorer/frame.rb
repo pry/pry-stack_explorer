@@ -20,7 +20,7 @@ module PryStackExplorer
     # This is only useful for regular old bindings that have not been
     # enhanced by `#of_caller`.
     # @return [String] A description of the frame (binding).
-    def description
+    def _description
       return b.frame_description if b.frame_description
 
       if is_method?
@@ -34,7 +34,30 @@ module PryStackExplorer
       end
     end
 
-    T = Pry::Helpers::Text
+    DESCRIPTION_PATTERN = %r{
+      (?<context>
+        (?:
+          block\s
+          (?:\(\d\ levels\)\ )?
+        )
+        (?:in\ )
+      )?
+      (?<method>.*)
+    }x
+
+    def description
+      return unless _description
+      _description.match(DESCRIPTION_PATTERN).named_captures
+    end
+
+    module T
+      extend Pry::Helpers::Text
+
+      # Not in Pry yet
+      def self.faded(text)
+        "\e[2m#{text}\e[0m"
+      end
+    end
 
     COLOR_SCHEME = {
       description: {
@@ -42,11 +65,23 @@ module PryStackExplorer
         method: :green,
       },
       signature: {
-        class: :default,
+        module: :default,
         method: [:blue, :bold],
         arguments: :blue,
       }
     }
+
+    # faded(" | ")
+    PIPE = "\e[2m | \e[0m"
+
+    def apply_color(string, color = nil, weight = nil)
+      return unless string
+
+      string = T.public_send(weight, string) if weight
+      string = T.public_send(color, string) if color
+
+      string
+    end
 
     # Produces a string describing the frame
     # @param [Options] verbose: Whether to generate a verbose description.
@@ -54,41 +89,38 @@ module PryStackExplorer
     def info(verbose: false)
       return @info[!!verbose] if @info
 
-      deskription = description&.match(/((?:block(?:\s\(\d levels\))?)(?: in ))?(.*)/)
-        .to_a.then do |_, a, b|
-          [
-            a,
-            T.green(b)
-          ].join("")
-        end
-
-      base = ""
-      base << faded(pretty_type.ljust(9))
-      base << " "
-      base << (deskription)
-
-      if sig
-        base << faded(" | ")
-        base << sig.match(/(.*?)([#\.].*?)(\(.*?\))/).to_a
-          .then do |_, a, b, c|
-            [
-              (T.default a),
-              (T.blue T.bold b),
-              (T.blue c)
-            ].join("")
-          end
-      end
-
-      @info = {
-        false => base,
-        true => base + "\n      in #{self_clipped} #{path}",
-      }
-
+      @info = _info
       @info[!!verbose]
     end
 
-    def pretty_type
-      type ? "[#{type}]" : ""
+    def _info
+      output = {}
+      output[:type] = T.faded(type.to_s.ljust(10))
+
+      output[:full_description] = [
+        # description
+        [
+          apply_color(description["context"], nil),
+          apply_color(description["method"], :green),
+        ].compact.join(""),
+
+        # signature
+        [
+          apply_color(signature['module'], nil),
+          apply_color(signature['method'], :blue, :bold),
+          apply_color(signature['arguments'], :faded),
+        ].compact.join("")
+
+      ].compact.join(PIPE)
+
+      base = output.values.join("")
+
+      extra_info = "      in #{self_clipped} #{path}"
+
+      {
+        false => base,
+        true => base + "\n" + extra_info,
+      }
     end
 
     def type
@@ -117,9 +149,18 @@ module PryStackExplorer
       Pry::Method.from_binding(b) if _method
     end
 
-    def sig
-      return unless pry_method
-      self.class.method_signature_with_owner(pry_method)
+    SIGNATURE_PATTERN = /
+      (?<module>.*?)
+      (?<method>[#\.].*?)
+      (?<arguments>\(.*?\))
+    /x
+
+    def signature
+      return {} unless pry_method
+      string = self.class.method_signature_with_owner(pry_method)
+
+      # Will match strings like `Module::Module#method(args)`
+      string.match(SIGNATURE_PATTERN).named_captures
     end
 
     # @param [Pry::Method] pry_method The method object.
@@ -140,11 +181,6 @@ module PryStackExplorer
                end
       end
       "#{pry_method.name_with_owner}(#{args.join(', ')})"
-    end
-
-    # Not in Pry yet
-    def faded(text)
-      "\e[2m#{text}\e[0m"
     end
   end
 end
