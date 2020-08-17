@@ -3,6 +3,9 @@
 * Require Pry 0.13
 * Fix Pry#_pry_ => #pry_instance deprecation
 
+## v0.4.12 (17 August 2020)
+* Require Ruby 2.5 in Gemspec (#54)
+
 ## v0.4.11 (21 May 2020)
 * Special branch for Ruby 2.5
 * Fix Pry 0.13+ deprecations and broken `show-stack`
