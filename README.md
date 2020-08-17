@@ -3,12 +3,10 @@ pry-stack_explorer
 
 _Walk the stack in a Pry session_
 
-Ruby versions: **Branch v0.5 requires Ruby 2.6+**. Branch v0.4.11+ will remain for Ruby 2.5 users until its EOL in March 2021.
-
 ---
 
-pry-stack_explorer is a plugin for the [Pry](http://pry.github.com)
-REPL that enables the user to navigate the call-stack.
+Pry::StackExplorer is a plugin for [Pry](http://pry.github.com)
+that allows navigating the call stack.
 
 From the point a Pry session is started, the user can move up the stack
 through parent frames, examine state, and even evaluate code.
@@ -43,6 +41,12 @@ gem install pry-stack_explorer
 * Read the [documentation](http://rdoc.info/github/banister/pry-stack_explorer/master/file/README.md)
 * See the [wiki](https://github.com/pry/pry-stack_explorer/wiki) for in-depth usage information.
 
+
+### Branches and compatible Ruby versions
+* v0.5: Ruby 2.6+, Pry 0.13+
+* v0.4.11+: Ruby 2.5, Pry 0.12+ (branch `0-4` – end-of-life in March 2021)
+* v0.4.9.3: Older versions (unsupported)
+
 Example:
 --------
 Here we run the following ruby script:
@@ -67,12 +71,6 @@ We wander around the stack a little bit, and modify the state of a frame above t
 [![asciicast](https://asciinema.org/a/257713.svg)](https://asciinema.org/a/257713)
 
 Output from above is `Goodbye` as we changed the `x` local inside the `alpha` (caller) stack frame.
-
-Compatible versions
--------------------
-* v0.5: Ruby 2.6+, Pry 0.13+
-* v0.4.11: Ruby 2.5, Pry 0.12+ (branch `works-with-ruby-2-5`)
-* v0.4.9.3: Older versions
 
 
 License
