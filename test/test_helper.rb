@@ -5,6 +5,10 @@ Dir[File.expand_path("../support/**/*.rb", __FILE__)].each do |file|
   require file
 end
 
+if RUBY_VERSION >= '2.7.2'
+  # NOTE: https://bugs.ruby-lang.org/issues/17000
+  Warning[:deprecated] = true
+end
 
 # unless Object.const_defined? 'PryStackExplorer'
   $:.unshift File.expand_path '../../lib', __FILE__
