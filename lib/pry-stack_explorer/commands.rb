@@ -247,6 +247,7 @@ module PryStackExplorer
         opt.on :H, :head, "Display the first N stack frames (defaults to 10).", :optional_argument => true, :as => Integer, :default => 10
         opt.on :T, :tail, "Display the last N stack frames (defaults to 10).", :optional_argument => true, :as => Integer, :default => 10
         opt.on :c, :current, "Display N frames either side of current frame (default to 5).", :optional_argument => true, :as => Integer, :default => 5
+        opt.on :a, :app, "Display application frames only", optional_argument: true
       end
 
       def memoized_info(index, b, verbose)
@@ -290,26 +291,72 @@ module PryStackExplorer
       private :selected_stack_frames
 
       def process
-        if !frame_manager
-          output.puts "No caller stack available!"
+        return no_stack_available! unless frame_manager
+
+        title = "Showing all accessible frames in stack (#{frame_manager.bindings.size} in total):"
+
+        content = [
+          bold(title),
+          "---",
+          make_stack_lines
+        ].join("\n")
+
+        stagger_output content
+      end
+
+      private
+
+      def make_stack_lines
+        frames_with_indices.map do |b, i|
+          make_stack_line(b, i, (i == frame_manager.binding_index))
+        end.join("\n")
+      end
+
+      def frames_with_indices
+        if opts.present?(:app) && defined?(ActiveSupport::BacktraceCleaner)
+          app_frames
         else
-          content = ""
-          content << "\n#{bold("Showing all accessible frames in stack (#{frame_manager.bindings.size} in total):")}\n--\n"
-
-          base_frame_index, frames = selected_stack_frames
-          frames.each_with_index do |b, index|
-            i = index + base_frame_index
-            if i == frame_manager.binding_index
-              content << "=> ##{i} #{memoized_info(i, b, opts[:v])}\n"
-            else
-              content << "   ##{i} #{memoized_info(i, b, opts[:v])}\n"
-            end
-          end
-
-          stagger_output content
+          offset_frames
         end
       end
 
+      # "=> #0  method_name <Class#method(...)>"
+      def make_stack_line(b, i, active)
+        arw = active ? "=>" : "  "
+
+        "#{arw} ##{i} #{memoized_info(i, b, opts[:v])}"
+      end
+
+      def offset_frames
+        base_frame_index, frames = selected_stack_frames
+
+        frames.each_with_index.map do |frame, index|
+          [frame, index + base_frame_index]
+        end
+      end
+
+      def no_stack_available!
+        output.puts "No caller stack available!"
+      end
+
+      LOCATION_LAMBDA = ->(_binding){ _binding.source_location[0] }
+
+      def app_frames
+        locations = frame_manager.bindings.map(&LOCATION_LAMBDA)
+        filtered = backtrace_cleaner.clean(locations)
+
+        frame_manager.bindings
+          .each_with_index
+          .map
+          .select do |_binding, _index|
+            LOCATION_LAMBDA.call(_binding).in?(filtered)
+          end
+      end
+
+      # also see Rails::BacktraceCleaner
+      def backtrace_cleaner
+        @backtrace_cleaner ||= ActiveSupport::BacktraceCleaner.new
+      end
     end
 
     alias_command "show-stack", "stack"
