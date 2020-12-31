@@ -3,7 +3,7 @@
 * Require Pry 0.13
 * Fix Pry#_pry_ => #pry_instance deprecation
 
-## v0.4.12 (17 August 2020)
+## v0.4.13 (31 December 2020)
 * Require Ruby 2.5 in Gemspec (#54)
 
 ## v0.4.11 (21 May 2020)
