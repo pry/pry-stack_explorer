@@ -17,6 +17,10 @@ Gem::Specification.new do |s|
   s.files = `git ls-files lib *.md LICENSE`.split("\n")
 
   s.homepage = "https://github.com/pry/pry-stack_explorer"
+  s.metadata = {
+    "bug_tracker_uri" => "https://github.com/pry/pry-stack_explorer/issues",
+    "source_code_uri" => "https://github.com/pry/pry-stack_explorer",
+  }
 
   s.specification_version = 4
 
