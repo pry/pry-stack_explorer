@@ -31,7 +31,7 @@ Commands:
 
 In Gemfile:
 ```rb
-gem 'pry-stack_explorer', '~> 0.5.0'
+gem 'pry-stack_explorer', '~> 0.6.0'
 ```
 
 ```
@@ -43,7 +43,7 @@ gem install pry-stack_explorer
 
 
 ### Branches and compatible Ruby versions
-* v0.5: Ruby 2.6+, Pry 0.13+
+* v0.5, v0.6: Ruby 2.6+, Pry 0.13+
 * v0.4.11+: Ruby 2.5, Pry 0.12+ (branch `0-4` – end-of-life in March 2021)
 * v0.4.9.3: Older versions (unsupported)
 
