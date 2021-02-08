@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.metadata = {
     "bug_tracker_uri" => "https://github.com/pry/pry-stack_explorer/issues",
     "source_code_uri" => "https://github.com/pry/pry-stack_explorer",
+    "changelog_uri"   => "https://github.com/pry/pry-stack_explorer/blob/master/CHANGELOG",
   }
 
   s.specification_version = 4
