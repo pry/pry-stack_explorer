@@ -24,9 +24,9 @@ def apply_spec_defaults(s)
   s.email = 'jrmair@gmail.com'
   s.description = s.summary
   s.require_path = 'lib'
-  s.add_dependency("binding_of_caller",">= 0.7")
-  s.add_dependency("pry",">=0.9.11")
-  s.add_development_dependency("bacon","~>1.1.0")
+  s.add_dependency("binding_of_caller",">= 1.0")
+  s.add_dependency("pry","~> 0.13")
+  s.add_development_dependency("rspec","~> 3.9")
   s.add_development_dependency('rake', '~> 0.9')
   s.homepage = "https://github.com/pry/pry-stack_explorer"
   s.files = `git ls-files`.split("\n")
