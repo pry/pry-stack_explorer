@@ -1,3 +1,6 @@
+## v0.6.2 (13 March 2026)
+* Require binding_of_caller >= 1.0 to support Ruby 4 (via 2.0.0+)
+
 ## v0.6.1 (8 February 2021)
 * Fix 'Source Code' link in gem metadata
 * Stack now filters for application frames (#53)
