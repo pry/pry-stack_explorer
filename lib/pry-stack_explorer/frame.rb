@@ -1,5 +1,7 @@
 module PryStackExplorer
   class Frame
+    include Pry::Helpers::Text
+
     attr_reader :b
 
     def self.make(_binding)
@@ -35,13 +37,10 @@ module PryStackExplorer
     def info(verbose: false)
       return @info[!!verbose] if @info
 
-      base = +""
-      base << faded(pretty_type.ljust(9))
-      base << " #{description}"
+      base = faded(type.to_s.ljust(10)) + colored_description
 
       if sig
-        base << faded(" | ")
-        base << sig
+        base << faded(" | ") << colored_sig
       end
 
       @info = {
@@ -50,10 +49,6 @@ module PryStackExplorer
       }
 
       @info[!!verbose]
-    end
-
-    def pretty_type
-      type ? "[#{type}]" : ""
     end
 
     def type
@@ -107,7 +102,26 @@ module PryStackExplorer
       "#{pry_method.name_with_owner}(#{args.join(', ')})"
     end
 
-    # Not in Pry yet
+    private
+
+    FRAME_DESC_PATTERN = /\A((?:block\s(?:\(\d levels\) )?in )?)(.*)\z/
+
+    def colored_description
+      desc = description or return ""
+      m = desc.match(FRAME_DESC_PATTERN)
+      m[1] + green(m[2])
+    end
+
+    def colored_sig
+      return "" unless pry_method
+      return sig if pry_method.undefined?
+
+      owner, sep, name = pry_method.name_with_owner.partition(/[#.]/)
+      args = sig.delete_prefix(pry_method.name_with_owner)
+
+      owner + bold(blue("#{sep}#{name}")) + faded(args)
+    end
+
     def faded(text)
       "\e[2m#{text}\e[0m"
     end
