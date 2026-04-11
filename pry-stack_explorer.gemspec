@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'binding_of_caller', '>= 1.0'
   s.add_runtime_dependency 'pry', '~> 0.13'
 
+  s.add_development_dependency 'ostruct'
   s.add_development_dependency 'rspec', '~> 3.9'
   s.add_development_dependency 'rake', '>= 12.3.3'
 end
