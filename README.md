@@ -75,6 +75,6 @@ Output from above is `Goodbye` as we changed the `x` local inside the `alpha` (c
 
 License
 -------
-Released under the [MIT License](https://github.com/pry/pry-stack_explorer/blob/master/LICENSE) by John Mair (banisterfiend) and contributors
+Released under the [MIT License](https://github.com/pry/pry-stack_explorer/blob/master/LICENSE) by John Mair (banisterfiend), Jonathan Allard (joallard), and contributors
 
 Contributions to this gem are released under the same license.
