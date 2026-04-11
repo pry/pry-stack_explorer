@@ -58,6 +58,14 @@ describe "Commands" do
     end
   end
 
+  describe "unrecognized argument" do
+    it 'should error on invalid argument' do
+      output = issue_pry_commands("up -", "exit-all"){ bingbong.bing }
+
+      expect(output).to match(/Error/)
+    end
+  end
+
   describe "up" do
     it 'should move up the call stack one frame at a time' do
       redirect_pry_io(InputTester.new("@methods << __method__",

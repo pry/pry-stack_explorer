@@ -21,6 +21,8 @@ module PryStackExplorer
         frame_manager.change_frame_by_object_regex(Regexp.new(match[1]), Regexp.new(match[3]), up_or_down)
       elsif argument =~ /^[^-].*$/ && argument =~ /\w/ # must contain a word char to be a valid frame name
         frame_manager.change_frame_by_regex(Regexp.new(argument), up_or_down)
+      else
+        raise Pry::CommandError, "Invalid argument: #{argument}"
       end
     end
 
