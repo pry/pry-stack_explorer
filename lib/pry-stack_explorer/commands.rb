@@ -55,6 +55,8 @@ module PryStackExplorer
         if args[0].nil? || args[0].empty?
           frame = PryStackExplorer::Frame.make(target)
           output.puts "##{frame_manager.binding_index} #{frame.info(verbose: true)}"
+        elsif args[0] =~ /\A-?\d+\z/
+          frame_manager.change_frame_to(args[0].to_i)
         else
           go_updown(:up, args[0])
         end

@@ -287,14 +287,15 @@ describe "Commands" do
 
     end
 
-    it 'should move to the given frame in the call stack' do
-      redirect_pry_io(InputTester.new("frame 2",
+    it 'should jump to absolute frame index' do
+      redirect_pry_io(InputTester.new("up",
+                                      "frame 0",
                                       "@methods << __method__",
                                       "exit-all"), out=StringIO.new) do
         bingbong.bing
       end
 
-      expect(bingbong.methods[0]).to eq(:bing)
+      expect(bingbong.methods[0]).to eq(:bang)
     end
 
     it 'should return info on current frame when given no parameters' do

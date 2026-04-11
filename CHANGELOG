@@ -1,5 +1,6 @@
 * Colorize stack output!
 * RSpec 'it' blocks are now better tagged
+* Fix `frame N` to jump to absolute frame index (was broken after refactor)
 
 ## v0.6.3 (10 April 2026)
 * Fix rake dev-dep (published 0.6.2 gem incorrectly specified ~> 0.9)
